@@ -195,7 +195,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                             <div>
                               <label className="text-sm font-medium text-gray-600">Test Cases</label>
                               <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
-                                {selectedExecution.testCases.map((testCase, index) => (
+                                {selectedExecution?.testCases?.map((testCase, index) => (
                                   <div key={index} className="flex items-start space-x-3 p-2 border rounded">
                                     {testCase.passed ? (
                                       <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
