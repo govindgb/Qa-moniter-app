@@ -100,6 +100,15 @@ export async function POST(request: NextRequest) {
 
 
 
+    let normalizedStatus = 'fail';
+    if (typeof status === 'string') {
+      if (status.toLowerCase() === 'pass' || status.toLowerCase() === 'passed' || status.toLowerCase() === 'completed') {
+        normalizedStatus = 'pass';
+      } else if (status.toLowerCase() === 'fail' || status.toLowerCase() === 'failed') {
+        normalizedStatus = 'fail';
+      }
+    }
+
     // Check if test execution with same testId already exists
     const existingExecution = await TestExecution.findOne({ testId: testId.trim() });
     
@@ -109,11 +118,10 @@ export async function POST(request: NextRequest) {
         existingExecution._id,
         {
           taskId,
-          status: status || 'fail',
+          status: normalizedStatus,
           feedback: feedback.trim(),
           attachedImages: attachedImages || [],
           testerName: testerName.trim(),
-         
         },
         { new: true, runValidators: true }
       ).populate('taskId', 'unitTestLabel description tags');
@@ -129,11 +137,10 @@ export async function POST(request: NextRequest) {
     const testExecution = new TestExecution({
       taskId,
       testId: testId.trim(),
-      status: status || 'fail',
+      status: normalizedStatus,
       feedback: feedback.trim(),
       attachedImages: attachedImages || [],
       testerName: testerName.trim(),
-  
     });
 
     const savedTestExecution = await testExecution.save();
