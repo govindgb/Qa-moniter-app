@@ -285,7 +285,7 @@ export default function TestExecutionTable({ onEditTestExecution, onShowHistory 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="createdAt">Date Created</SelectItem>
-                  <SelectItem value="testId">Test ID</SelectItem>
+                  {/* <SelectItem value="testId">Test ID</SelectItem> */}
                   <SelectItem value="status">Status</SelectItem>
                   <SelectItem value="testerName">Tester Name</SelectItem>
                 </SelectContent>
@@ -365,15 +365,15 @@ export default function TestExecutionTable({ onEditTestExecution, onShowHistory 
                       <span>Unit Test Label</span>
                     </div>
                   </TableHead>
-                  <TableHead className="font-bold text-gray-800">
+                  {/* <TableHead className="font-bold text-gray-800">
                     <div className="flex items-center space-x-2">
                       <FileText className="h-4 w-4" />
                       <span>Test ID</span>
                     </div>
-                  </TableHead>
-                  <TableHead className="font-bold text-gray-800">Task Description</TableHead>
+                  </TableHead> */}
+                  {/* <TableHead className="font-bold text-gray-800">Task Description</TableHead> */}
+                  <TableHead className="font-bold text-gray-800">Tags</TableHead>
                   <TableHead className="font-bold text-gray-800">Status</TableHead>
-                  <TableHead className="font-bold text-gray-800">Pass Rate</TableHead>
                   <TableHead className="font-bold text-gray-800">
                     <div className="flex items-center space-x-2">
                       <User className="h-4 w-4" />
@@ -398,14 +398,14 @@ export default function TestExecutionTable({ onEditTestExecution, onShowHistory 
                         {(execution as any).taskId?.unitTestLabel || 'N/A'}
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm font-medium text-blue-700">
+                    {/* <TableCell className="font-mono text-sm font-medium text-blue-700">
                       {execution.testId}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <div className="max-w-xs">
-                        <p className="font-medium truncate text-gray-900">
+                        {/* <p className="font-medium truncate text-gray-900">
                           {(execution as any).taskId?.description || 'Task description not available'}
-                        </p>
+                        </p> */}
                         <div className="flex flex-wrap gap-1 mt-2">
                           {((execution as any).taskId?.tags || []).slice(0, 2).map((tag: string, tagIndex: number) => (
                             <Badge
@@ -429,7 +429,7 @@ export default function TestExecutionTable({ onEditTestExecution, onShowHistory 
                         {execution.status.toUpperCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="text-center">
                         <div className="font-bold text-lg">
                           {getPassRate(execution.passedTestCases, execution.totalTestCases)}
@@ -438,7 +438,7 @@ export default function TestExecutionTable({ onEditTestExecution, onShowHistory 
                           {execution.passedTestCases}/{execution.totalTestCases} passed
                         </div>
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-sm font-medium text-gray-700">
                       {execution.testerName}
                     </TableCell>
