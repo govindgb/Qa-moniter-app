@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Task } from '@/types/task';
 import MultiSelectTags from './MultiSelectTags';
+import { useRouter } from 'next/navigation';
 
 interface TaskFormProps {
   editTask?: Task | null;
@@ -91,27 +92,29 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     if (!validateForm()) {
       return;
     }
-
+  
     try {
       const taskData = {
         ...formData,
         testCases: ['Default test case'], // Add default test case
         attachedImages: [],
       };
-
+  
       if (editTask && editTask._id) {
         await updateTask(editTask._id, taskData);
       } else {
         await createTask(taskData);
       }
-
-      // Reset form after successful submission
+  
+      // Reset form after successful creation (not editing)
       if (!editTask) {
         setFormData({
           unitTestLabel: '',
@@ -120,12 +123,17 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
           notes: '',
         });
       }
-
+  
+      // Trigger any external success handler
       onSuccess?.();
+  
+      // Redirect to unit case list
+      router.push('/unit-case-list');
     } catch (error) {
       console.error('Error saving task:', error);
     }
   };
+  
 
   return (
     <Card className="w-full">
@@ -187,6 +195,7 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
           <Button
             type="submit"
             disabled={loading}
+            // onClick={handleSubmit}
             className="bg-red-500 hover:bg-red-600 text-white"
           >
             {loading ? 'Saving...' : editTask ? 'Update Task' : 'Save Task'}

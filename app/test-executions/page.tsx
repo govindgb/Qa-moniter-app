@@ -13,17 +13,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
+
 
 export default function TestExecutionsPage() {
   const [editingTestExecution, setEditingTestExecution] = useState<TestExecution | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const router = useRouter();
 
   const handleEditTestExecution = (testExecution: TestExecution) => {
-    setEditingTestExecution(testExecution);
-    setShowForm(true);
+    router.push(`/test-executions/edit/${testExecution._id}`);
   };
+
 
   const handleShowHistory = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -41,8 +44,7 @@ export default function TestExecutionsPage() {
   };
 
   const handleAddNew = () => {
-    setEditingTestExecution(null);
-    setShowForm(true);
+    router.push('/test-executions/create');
   };
 
   const handleCloseForm = () => {
