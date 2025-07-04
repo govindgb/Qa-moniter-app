@@ -157,7 +157,7 @@ export default function MultiSelectTags({
               >
                 <LoadingButton loading={loading} loadingText="Adding...">
                   <Plus className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Add "{searchValue}"</span>
+                  <span className="text-sm">Add &quot;{searchValue}&quot;</span>
                 </LoadingButton>
               </Button>
             )}
