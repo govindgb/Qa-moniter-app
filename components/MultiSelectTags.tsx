@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import axios from 'axios';
+import { LoadingButton } from '@/components/ui/loader';
 
 interface MultiSelectTagsProps {
   selectedTags: string[];
@@ -154,8 +155,10 @@ export default function MultiSelectTags({
                 onClick={handleCustomTagAdd}
                 disabled={loading}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="text-sm">Add &quot;{searchValue}&quot;</span>
+                <LoadingButton loading={loading} loadingText="Adding...">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="text-sm">Add "{searchValue}"</span>
+                </LoadingButton>
               </Button>
             )}
           </div>

@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Bug, Loader2, Shield, CheckCircle, Users, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, Bug, Shield, CheckCircle, Users, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { LoadingButton, Loader } from '@/components/ui/loader';
 
 export default function LoginPage() {
   const { login, loading, error, isAuthenticated } = useAuth();
@@ -56,10 +56,7 @@ export default function LoginPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="flex items-center space-x-3">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="text-lg text-gray-700 font-medium">Loading...</span>
-        </div>
+        <Loader size="lg" text="Loading..." />
       </div>
     );
   }
@@ -203,14 +200,9 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Signing In...
-                    </>
-                  ) : (
-                    'Sign In'
-                  )}
+                  <LoadingButton loading={loading} loadingText="Signing In...">
+                    Sign In
+                  </LoadingButton>
                 </Button>
               </form>
 

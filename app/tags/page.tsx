@@ -45,10 +45,10 @@ import {
   Edit,
   Trash2,
   Tags as TagsIcon,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 import axios from "axios";
+import { LoadingButton, Loader } from "@/components/ui/loader";
 
 interface Tag {
   _id: string;
@@ -79,6 +79,7 @@ export default function TagsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     label: "",
@@ -159,7 +160,7 @@ export default function TagsPage() {
     }
 
     try {
-      setLoading(true);
+      setSubmitLoading(true);
       setError(null);
 
       const payload = {
@@ -179,7 +180,7 @@ export default function TagsPage() {
     } catch (error: any) {
       setError(error.response?.data?.error || "Failed to save tag");
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
@@ -241,10 +242,10 @@ export default function TagsPage() {
             disabled={loading}
             className="border-blue-200 text-blue-700 hover:bg-blue-50"
           >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
+            <LoadingButton loading={loading} loadingText="Refreshing...">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </LoadingButton>
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -336,25 +337,21 @@ export default function TagsPage() {
                     type="button"
                     variant="outline"
                     onClick={handleCloseDialog}
-                    disabled={loading}
+                    disabled={submitLoading}
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    disabled={loading}
+                    disabled={submitLoading}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : editingTag ? (
-                      "Update Tag"
-                    ) : (
-                      "Create Tag"
-                    )}
+                    <LoadingButton 
+                      loading={submitLoading} 
+                      loadingText={editingTag ? "Updating..." : "Creating..."}
+                    >
+                      {editingTag ? "Update Tag" : "Create Tag"}
+                    </LoadingButton>
                   </Button>
                 </div>
               </form>
@@ -374,10 +371,7 @@ export default function TagsPage() {
         <CardContent className="p-0">
           {loading && tags.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-12 w-12 text-blue-400 animate-spin mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Loading Tags
-              </h3>
+              <Loader size="lg" text="Loading Tags" className="mb-4" />
               <p className="text-gray-500">
                 Please wait while we fetch your tags...
               </p>
@@ -459,15 +453,19 @@ export default function TagsPage() {
                                 className="h-8 w-8 p-0 border-red-200 text-red-700 hover:bg-red-50"
                                 disabled={deleteLoading === tag._id}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                {deleteLoading === tag._id ? (
+                                  <Loader size="sm" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete Tag</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete the tag &quot;
-                                  {tag.label}&quot;? This action cannot be undone.
+                                  Are you sure you want to delete the tag "
+                                  {tag.label}"? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -476,9 +474,12 @@ export default function TagsPage() {
                                   onClick={() => handleDelete(tag._id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  {deleteLoading === tag._id
-                                    ? "Deleting..."
-                                    : "Delete"}
+                                  <LoadingButton 
+                                    loading={deleteLoading === tag._id} 
+                                    loadingText="Deleting..."
+                                  >
+                                    Delete
+                                  </LoadingButton>
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

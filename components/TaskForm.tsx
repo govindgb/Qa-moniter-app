@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Task } from '@/types/task';
 import MultiSelectTags from './MultiSelectTags';
 import { useRouter } from 'next/navigation';
+import { LoadingButton } from '@/components/ui/loader';
 
 interface TaskFormProps {
   editTask?: Task | null;
@@ -195,10 +196,14 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
           <Button
             type="submit"
             disabled={loading}
-            // onClick={handleSubmit}
             className="bg-red-500 hover:bg-red-600 text-white"
           >
-            {loading ? 'Saving...' : editTask ? 'Update Task' : 'Save Task'}
+            <LoadingButton 
+              loading={loading} 
+              loadingText={editTask ? 'Updating...' : 'Saving...'}
+            >
+              {editTask ? 'Update Task' : 'Save Task'}
+            </LoadingButton>
           </Button>
         </form>
       </CardContent>

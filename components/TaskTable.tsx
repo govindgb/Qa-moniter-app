@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // ✨ The chariot of navigation
+import { useRouter } from 'next/navigation';
 import { useTask } from '@/context/TaskContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Plus } from 'lucide-react';
 import { Task } from '@/types/task';
+import { LoadingButton, Loader } from '@/components/ui/loader';
 
 interface TaskTableProps {
   onEditTask: (task: Task) => void;
@@ -35,7 +36,7 @@ interface TaskTableProps {
 export default function TaskTable({ onEditTask }: TaskTableProps) {
   const { tasks, loading, error, getTasks, deleteTask } = useTask();
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  const router = useRouter(); // 🚀 The router cometh
+  const router = useRouter();
 
   useEffect(() => {
     getTasks();
@@ -77,7 +78,7 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
       <CardContent>
         {loading && tasks.length === 0 ? (
           <div className="flex justify-center py-8">
-            <p className="text-gray-500">Loading tasks...</p>
+            <Loader text="Loading tasks..." />
           </div>
         ) : error ? (
           <div className="flex justify-center py-8">
@@ -139,13 +140,13 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/edit-task/${task._id}`)} // 🔁 instead of onEditTask
-                        className="h-8 w-8 p-0"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/edit-task/${task._id}`)}
+                          className="h-8 w-8 p-0"
                         >
-                        <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4" />
                         </Button>
 
                         <AlertDialog>
@@ -156,7 +157,11 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                               className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                               disabled={deleteLoading === task._id}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {deleteLoading === task._id ? (
+                                <Loader size="sm" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -172,7 +177,12 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                                 onClick={() => task._id && handleDelete(task._id)}
                                 className="bg-red-600 hover:bg-red-700"
                               >
-                                {deleteLoading === task._id ? 'Deleting...' : 'Delete'}
+                                <LoadingButton 
+                                  loading={deleteLoading === task._id} 
+                                  loadingText="Deleting..."
+                                >
+                                  Delete
+                                </LoadingButton>
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

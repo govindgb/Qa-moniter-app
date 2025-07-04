@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Bug, Loader2, Rocket, Zap, Target } from 'lucide-react';
+import { Eye, EyeOff, Bug, Rocket, Zap, Target } from 'lucide-react';
 import Link from 'next/link';
+import { LoadingButton, Loader } from '@/components/ui/loader';
 
 export default function RegisterPage() {
   const { register, loading, error, isAuthenticated } = useAuth();
@@ -39,13 +39,6 @@ export default function RegisterPage() {
       [name]: value,
     }));
     setFormError('');
-  };
-
-  const handleRoleChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      role: value,
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,10 +70,7 @@ export default function RegisterPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="flex items-center space-x-3">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="text-lg text-gray-700 font-medium">Loading...</span>
-        </div>
+        <Loader size="lg" text="Loading..." />
       </div>
     );
   }
@@ -214,22 +204,6 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                {/* <div className="space-y-2">
-                  <Label htmlFor="role" className="text-sm font-semibold text-gray-700">
-                    Role
-                  </Label>
-                  <Select value={formData.role} onValueChange={handleRoleChange}>
-                    <SelectTrigger className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tester">QA Tester</SelectItem>
-                      <SelectItem value="manager">QA Manager</SelectItem>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div> */}
-
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
                     Password
@@ -285,14 +259,9 @@ export default function RegisterPage() {
                   disabled={loading}
                   className="w-full h-11 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
+                  <LoadingButton loading={loading} loadingText="Creating Account...">
+                    Create Account
+                  </LoadingButton>
                 </Button>
               </form>
 

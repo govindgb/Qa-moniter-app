@@ -4,7 +4,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
-import { Loader2 } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 
 const publicRoutes = ['/login', '/register'];
 
@@ -16,10 +16,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading...</span>
-        </div>
+        <Loader size="lg" text="Loading..." />
       </div>
     );
   }

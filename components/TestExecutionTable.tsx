@@ -51,6 +51,7 @@ import {
 } from "lucide-react";
 import { TestExecution } from "@/types/testExecution";
 import MultiSelectTags from "./MultiSelectTags";
+import { LoadingButton, Loader } from "@/components/ui/loader";
 
 interface TestExecutionTableProps {
   onEditTestExecution: (testExecution: TestExecution) => void;
@@ -191,10 +192,7 @@ export default function TestExecutionTable({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-16">
-            <RefreshCw className="h-12 w-12 text-blue-400 animate-spin mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Loading Test Executions
-            </h3>
+            <Loader size="lg" text="Loading Test Executions" className="mb-4" />
             <p className="text-gray-500">
               Please wait while we fetch your data...
             </p>
@@ -256,10 +254,10 @@ export default function TestExecutionTable({
               disabled={loading}
               className="border-blue-200 text-blue-700 hover:bg-blue-50"
             >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-              />
-              Refresh
+              <LoadingButton loading={loading} loadingText="Refreshing...">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </LoadingButton>
             </Button>
             <div className="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-1 rounded-lg border">
               <Filter className="h-4 w-4" />
@@ -371,8 +369,10 @@ export default function TestExecutionTable({
                 disabled={loading}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6"
               >
-                <Search className="h-4 w-4 mr-2" />
-                Apply Filters
+                <LoadingButton loading={loading} loadingText="Applying...">
+                  <Search className="h-4 w-4 mr-2" />
+                  Apply Filters
+                </LoadingButton>
               </Button>
             </div>
           </div>
@@ -553,7 +553,11 @@ export default function TestExecutionTable({
                               className="h-8 w-8 p-0 border-red-200 text-red-700 hover:bg-red-50"
                               disabled={deleteLoading === execution._id}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {deleteLoading === execution._id ? (
+                                <Loader size="sm" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -575,9 +579,12 @@ export default function TestExecutionTable({
                                 }
                                 className="bg-red-600 hover:bg-red-700"
                               >
-                                {deleteLoading === execution._id
-                                  ? "Deleting..."
-                                  : "Delete"}
+                                <LoadingButton 
+                                  loading={deleteLoading === execution._id} 
+                                  loadingText="Deleting..."
+                                >
+                                  Delete
+                                </LoadingButton>
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
