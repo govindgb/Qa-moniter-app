@@ -14,8 +14,9 @@ import { TestExecution } from '@/types/testExecution';
 import { Task } from '@/types/task';
 import ImageUpload from './ImageUpload';
 import MultiSelectTags from './MultiSelectTags';
-import { Clock, CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { LoadingButton } from '@/components/ui/loader';
 
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
@@ -42,6 +43,7 @@ export default function TestExecutionForm({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
+  
   useEffect(() => {
     getTasks();
   }, []);
@@ -433,16 +435,12 @@ export default function TestExecutionForm({
               disabled={loading}
               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
             >
-              {loading ? (
-                <>
-                  <Clock className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : editTestExecution ? (
-                "Update Test Execution"
-              ) : (
-                "Save Test Execution"
-              )}
+              <LoadingButton 
+                loading={loading} 
+                loadingText={editTestExecution ? "Updating..." : "Saving..."}
+              >
+                {editTestExecution ? "Update Test Execution" : "Save Test Execution"}
+              </LoadingButton>
             </Button>
           </div>
         </form>
