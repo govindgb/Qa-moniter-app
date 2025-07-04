@@ -361,7 +361,6 @@ export default function TagsPage() {
                     <TableHead className="font-bold text-gray-800">Label</TableHead>
                     <TableHead className="font-bold text-gray-800">Type</TableHead>
                     <TableHead className="font-bold text-gray-800">Working On</TableHead>
-                    <TableHead className="font-bold text-gray-800">Created By</TableHead>
                     <TableHead className="font-bold text-gray-800">Created At</TableHead>
                     <TableHead className="text-right font-bold text-gray-800">Actions</TableHead>
                   </TableRow>
@@ -379,12 +378,6 @@ export default function TagsPage() {
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {tag.workingOn || '-'}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        <div>
-                          <div className="font-medium">{tag.createdBy.name}</div>
-                          <div className="text-xs text-gray-500">{tag.createdBy.email}</div>
-                        </div>
                       </TableCell>
                       <TableCell className="text-gray-500 text-sm">
                         {formatDate(tag.createdAt)}
