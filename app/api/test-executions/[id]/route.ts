@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import TestExecution from '@/models/TestExecution';
-import mongoose from 'mongoose';
+import { NextRequest, NextResponse } from "next/server";
+import connectToDatabase from "@/lib/mongodb";
+import TestExecution from "@/models/TestExecution";
+import mongoose from "mongoose";
 
 // GET - Fetch test execution by ID
 export async function GET(
@@ -10,26 +10,29 @@ export async function GET(
 ) {
   try {
     await connectToDatabase();
-    
+
     const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid test execution ID',
+          error: "Invalid test execution ID",
         },
         { status: 400 }
       );
     }
 
-    const testExecution = await TestExecution.findById(id).populate('taskId', 'description tags');
-    
+    const testExecution = await TestExecution.findById(id).populate(
+      "taskId",
+      "description tags"
+    );
+
     if (!testExecution) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Test execution not found',
+          error: "Test execution not found",
         },
         { status: 404 }
       );
@@ -40,11 +43,11 @@ export async function GET(
       data: testExecution,
     });
   } catch (error) {
-    console.error('Error fetching test execution:', error);
+    console.error("Error fetching test execution:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch test execution',
+        error: "Failed to fetch test execution",
       },
       { status: 500 }
     );
@@ -58,16 +61,24 @@ export async function PUT(
 ) {
   try {
     await connectToDatabase();
-    
+
     const { id } = params;
     const body = await request.json();
-    const { taskId, testId, testCases, status, feedback, attachedImages, testerName } = body;
+    const {
+      taskId,
+      testId,
+      testCases,
+      status,
+      feedback,
+      attachedImages,
+      testerName,
+    } = body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid test execution ID',
+          error: "Invalid test execution ID",
         },
         { status: 400 }
       );
@@ -78,10 +89,28 @@ export async function PUT(
       return NextResponse.json(
         {
           success: false,
-          error: 'Task ID, Test ID, test cases, feedback, and tester name are required',
+          error:
+            "Task ID, Test ID, test cases, feedback, and tester name are required",
         },
         { status: 400 }
       );
+    }
+
+    // Normalize status to allowed values
+    let normalizedStatus = "fail";
+    if (typeof status === "string") {
+      if (
+        status.toLowerCase() === "pass" ||
+        status.toLowerCase() === "passed" ||
+        status.toLowerCase() === "completed"
+      ) {
+        normalizedStatus = "pass";
+      } else if (
+        status.toLowerCase() === "fail" ||
+        status.toLowerCase() === "failed"
+      ) {
+        normalizedStatus = "fail";
+      }
     }
 
     // Calculate passed test cases
@@ -94,7 +123,7 @@ export async function PUT(
         taskId,
         testId: testId.trim(),
         testCases,
-        status,
+        status: normalizedStatus,
         feedback: feedback.trim(),
         attachedImages: attachedImages || [],
         testerName: testerName.trim(),
@@ -102,13 +131,13 @@ export async function PUT(
         totalTestCases,
       },
       { new: true, runValidators: true }
-    ).populate('taskId', 'description tags');
+    ).populate("taskId", "description tags");
 
     if (!updatedTestExecution) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Test execution not found',
+          error: "Test execution not found",
         },
         { status: 404 }
       );
@@ -117,14 +146,14 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       data: updatedTestExecution,
-      message: 'Test execution updated successfully',
+      message: "Test execution updated successfully",
     });
   } catch (error) {
-    console.error('Error updating test execution:', error);
+    console.error("Error updating test execution:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to update test execution',
+        error: "Failed to update test execution",
       },
       { status: 500 }
     );
@@ -138,14 +167,14 @@ export async function DELETE(
 ) {
   try {
     await connectToDatabase();
-    
+
     const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid test execution ID',
+          error: "Invalid test execution ID",
         },
         { status: 400 }
       );
@@ -157,7 +186,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error: 'Test execution not found',
+          error: "Test execution not found",
         },
         { status: 404 }
       );
@@ -165,14 +194,14 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Test execution deleted successfully',
+      message: "Test execution deleted successfully",
     });
   } catch (error) {
-    console.error('Error deleting test execution:', error);
+    console.error("Error deleting test execution:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to delete test execution',
+        error: "Failed to delete test execution",
       },
       { status: 500 }
     );
