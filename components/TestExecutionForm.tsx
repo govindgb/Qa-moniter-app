@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -20,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { TestExecution } from "@/types/testExecution";
 import { Task } from "@/types/task";
 import ImageUpload from "./ImageUpload";
+import MultiSelectTags from "./MultiSelectTags";
 import {
   Clock,
   CheckCircle,
@@ -29,26 +29,6 @@ import {
   User,
   FileText,
 } from "lucide-react";
-=======
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useTestExecution } from '@/context/TestExecutionContext';
-import { useTask } from '@/context/TaskContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { TestExecution } from '@/types/testExecution';
-import { Task } from '@/types/task';
-import ImageUpload from './ImageUpload';
-import MultiSelectTags from './MultiSelectTags';
-import { Clock, CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
-import { useRouter } from 'next/navigation';
->>>>>>> Stashed changes
 
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
@@ -74,7 +54,6 @@ export default function TestExecutionForm({
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const router = useRouter();
 
   useEffect(() => {
     getTasks();
@@ -159,6 +138,15 @@ export default function TestExecutionForm({
     }));
   };
 
+  const handleTagsChange = (tags: string[]) => {
+    if (selectedTask) {
+      setSelectedTask({
+        ...selectedTask,
+        tags,
+      });
+    }
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -211,7 +199,6 @@ export default function TestExecutionForm({
           status: formData.status === "pass" ? "completed" : "failed",
         });
       } else {
-        // Always create new test execution (no duplicate checking)
         await createTestExecution({
           ...testExecutionData,
           status: formData.status === "pass" ? "completed" : "failed",
@@ -232,7 +219,6 @@ export default function TestExecutionForm({
       }
 
       onSuccess?.();
-      router.push('/test-executions');
     } catch (error) {
       console.error("Error saving test execution:", error);
     }
@@ -335,6 +321,7 @@ export default function TestExecutionForm({
                 className={`h-12 font-mono ${
                   errors.testId ? "border-red-500" : "border-gray-300"
                 } focus:border-blue-500 focus:ring-blue-500`}
+                readOnly
               />
               {errors.testId && (
                 <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -349,28 +336,13 @@ export default function TestExecutionForm({
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-gray-700">
-                  Selected Task Details
+                  Update Tags (Optional)
                 </Label>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Description:</span>{" "}
-                    {selectedTask.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    <span className="text-sm font-medium text-gray-600 mr-2">
-                      Tags:
-                    </span>
-                    {selectedTask.tags.map((tag, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+                <MultiSelectTags
+                  selectedTags={selectedTask.tags}
+                  onTagsChange={handleTagsChange}
+                  placeholder="Update tags for this task..."
+                />
               </div>
             </div>
           )}

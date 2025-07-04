@@ -147,7 +147,7 @@ export default function MultiSelectTags({
               onKeyDown={handleKeyDown}
               className="h-9"
             />
-            {searchValue && !availableTags.some(tag => tag.toLowerCase() === searchValue.toLowerCase()) && (
+            {searchValue && !availableTags.some(tag => tag?.toLowerCase() === searchValue.toLowerCase()) && (
               <Button
                 variant="ghost"
                 className="w-full justify-start mt-2 h-9"
@@ -155,7 +155,7 @@ export default function MultiSelectTags({
                 disabled={loading}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                <span className="text-sm">Add "{searchValue}"</span>
+                <span className="text-sm">Add &quot;{searchValue}&quot;</span>
               </Button>
             )}
           </div>
