@@ -175,7 +175,7 @@ export default function TestExecutionForm({
         },
       ],
     };
-    
+
 
     try {
       if (editTestExecution && editTestExecution._id) {
@@ -254,9 +254,8 @@ export default function TestExecutionForm({
                 disabled={!!editTestExecution}
               >
                 <SelectTrigger
-                  className={`h-12 ${
-                    errors.taskId ? "border-red-500" : "border-gray-300"
-                  } focus:border-blue-500 focus:ring-blue-500`}
+                  className={`h-12 ${errors.taskId ? "border-red-500" : "border-gray-300"
+                    } focus:border-blue-500 focus:ring-blue-500`}
                 >
                   <SelectValue placeholder="Select a unit test label" />
                 </SelectTrigger>
@@ -297,9 +296,8 @@ export default function TestExecutionForm({
                 value={formData.testId}
                 onChange={handleInputChange}
                 placeholder="Auto-generated test ID"
-                className={`h-12 font-mono ${
-                  errors.testId ? "border-red-500" : "border-gray-300"
-                } focus:border-blue-500 focus:ring-blue-500`}
+                className={`h-12 font-mono ${errors.testId ? "border-red-500" : "border-gray-300"
+                  } focus:border-blue-500 focus:ring-blue-500`}
                 readOnly
               />
               {errors.testId && (
@@ -341,9 +339,8 @@ export default function TestExecutionForm({
                 value={formData.testerName}
                 onChange={handleInputChange}
                 placeholder="Enter tester name"
-                className={`h-12 ${
-                  errors.testerName ? "border-red-500" : "border-gray-300"
-                } focus:border-blue-500 focus:ring-blue-500`}
+                className={`h-12 ${errors.testerName ? "border-red-500" : "border-gray-300"
+                  } focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.testerName && (
                 <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -365,10 +362,13 @@ export default function TestExecutionForm({
                 value={formData.status}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                  <SelectValue />
+                <SelectTrigger className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500" value={"select"}>
+
+
+                  <SelectValue  placeholder="Select status"/>
                 </SelectTrigger>
                 <SelectContent>
+
                   <SelectItem value="pass">
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
@@ -401,9 +401,8 @@ export default function TestExecutionForm({
               onChange={handleInputChange}
               placeholder="Enter detailed feedback about the testing..."
               rows={5}
-              className={`${
-                errors.feedback ? "border-red-500" : "border-gray-300"
-              } focus:border-blue-500 focus:ring-blue-500`}
+              className={`${errors.feedback ? "border-red-500" : "border-gray-300"
+                } focus:border-blue-500 focus:ring-blue-500`}
             />
             {errors.feedback && (
               <p className="text-sm text-red-500 flex items-center space-x-1">

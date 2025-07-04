@@ -310,18 +310,8 @@ export default function TestExecutionTable({
                       <span>Fail</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="completed">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Completed</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="failed">
-                    <div className="flex items-center space-x-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      <span>Failed</span>
-                    </div>
-                  </SelectItem>
+                  
+                 
                 </SelectContent>
               </Select>
             </div>
