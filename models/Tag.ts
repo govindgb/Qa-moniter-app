@@ -23,7 +23,7 @@ const TagSchema: Schema = new Schema({
     required: [true, 'Tag type is required'],
     enum: ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'],
   },
-  workingOn: {
+  description: {
     type: String,
     trim: true,
     maxlength: [200, 'Working on description cannot exceed 200 characters'],
