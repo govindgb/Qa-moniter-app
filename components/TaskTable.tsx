@@ -44,7 +44,6 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
 
   const handleDelete = async (id: string) => {
     if (!id) return;
-
     try {
       setDeleteLoading(id);
       await deleteTask(id);
@@ -109,21 +108,17 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                     </TableCell>
                     <TableCell className="font-medium text-blue-700">
                       {task.unitTestLabel}
+                      {task.notes && (
+                        <p className="text-xs text-gray-500 mt-1">{task.notes}</p>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-xs">
-                        {task.notes && (
-                          <p className="text-sm text-gray-500 mt-1">{task.notes}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {task.tags.map((tag, tagIndex) => (
                           <Badge
                             key={tagIndex}
                             variant="secondary"
-                            className="text-xs"
+                            className="text-xs whitespace-nowrap"
                           >
                             {tag}
                           </Badge>
