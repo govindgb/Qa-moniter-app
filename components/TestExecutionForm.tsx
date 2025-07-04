@@ -132,12 +132,12 @@ export default function TestExecutionForm({
       if (editTestExecution?._id) {
         await updateTestExecution(editTestExecution._id, {
           ...payload,
-          status: formData.status === "pass" ? "completed" : "failed",
+          status: formData.status === "pass" ? "pass" : "fail",
         });
       } else {
         await createTestExecution({
           ...payload,
-          status: formData.status === "pass" ? "completed" : "failed",
+          status: formData.status === "pass" ? "pass" : "fail",
         });
       }
       if (!editTestExecution) {

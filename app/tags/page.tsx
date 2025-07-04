@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Select from "react-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import {
-  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -40,13 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Tags as TagsIcon,
-  RefreshCw,
-} from "lucide-react";
+import { Plus, Edit, Trash2, Tags as TagsIcon, RefreshCw } from "lucide-react";
 import axios from "axios";
 import { LoadingButton, Loader } from "@/components/ui/loader";
 
@@ -83,7 +78,7 @@ export default function TagsPage() {
 
   const [formData, setFormData] = useState({
     label: "",
-    tagType: "",
+    tagType: [] as string[],
     workingOn: "",
   });
 
@@ -111,7 +106,7 @@ export default function TagsPage() {
   const resetForm = () => {
     setFormData({
       label: "",
-      tagType: "",
+      tagType: [] as string[],
       workingOn: "",
     });
     setFormErrors({});
@@ -123,7 +118,7 @@ export default function TagsPage() {
       setEditingTag(tag);
       setFormData({
         label: tag.label,
-        tagType: tag.tagType,
+        tagType: Array.isArray(tag.tagType) ? tag.tagType : [tag.tagType],
         workingOn: tag.workingOn || "",
       });
     } else {
@@ -144,8 +139,8 @@ export default function TagsPage() {
       errors.label = "Label is required";
     }
 
-    if (!formData.tagType) {
-      errors.tagType = "Tag type is required";
+    if (!formData.tagType.length) {
+      errors.tagType = "At least one tag type is required";
     }
 
     setFormErrors(errors);
@@ -290,35 +285,33 @@ export default function TagsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tagType">Tag Type</Label>
+                  <Label htmlFor="tagType">Tag Type(s)</Label>
                   <Select
-                    value={formData.tagType}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, tagType: value }))
+                    isMulti
+                    options={TAG_TYPES.map((type) => ({
+                      label: type,
+                      value: type,
+                    }))}
+                    value={formData.tagType.map((type) => ({
+                      label: type,
+                      value: type,
+                    }))}
+                    onChange={(selectedOptions) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        tagType: selectedOptions.map((opt) => opt.value),
+                      }))
                     }
-                  >
-                    <SelectTrigger
-                      className={formErrors.tagType ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Select tag type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TAG_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                  />
                   {formErrors.tagType && (
                     <p className="text-sm text-red-500">{formErrors.tagType}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="workingOn">
-                    What are you working on?
-                  </Label>
+                  <Label htmlFor="workingOn">What are you working on?</Label>
                   <Input
                     id="workingOn"
                     value={formData.workingOn}
@@ -346,8 +339,8 @@ export default function TagsPage() {
                     disabled={submitLoading}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    <LoadingButton 
-                      loading={submitLoading} 
+                    <LoadingButton
+                      loading={submitLoading}
                       loadingText={editingTag ? "Updating..." : "Creating..."}
                     >
                       {editingTag ? "Update Tag" : "Create Tag"}
@@ -403,11 +396,21 @@ export default function TagsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gradient-to-r from-gray-50 to-blue-50 border-b-2 border-gray-200">
-                    <TableHead className="font-bold text-gray-800">Label</TableHead>
-                    <TableHead className="font-bold text-gray-800">Tag Type</TableHead>
-                    <TableHead className="font-bold text-gray-800">Features</TableHead>
-                    <TableHead className="font-bold text-gray-800">Updated At</TableHead>
-                    <TableHead className="text-right font-bold text-gray-800">Actions</TableHead>
+                    <TableHead className="font-bold text-gray-800">
+                      Label
+                    </TableHead>
+                    <TableHead className="font-bold text-gray-800">
+                      Tag Type
+                    </TableHead>
+                    <TableHead className="font-bold text-gray-800">
+                      Features
+                    </TableHead>
+                    <TableHead className="font-bold text-gray-800">
+                      Updated At
+                    </TableHead>
+                    <TableHead className="text-right font-bold text-gray-800">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,14 +423,30 @@ export default function TagsPage() {
                         {tag.label}
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          className={`text-xs font-medium ${getTagTypeColor(
-                            tag.tagType
-                          )}`}
-                        >
-                          {tag.tagType}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          {Array.isArray(tag.tagType) ? (
+                            tag.tagType.map((type, index) => (
+                              <Badge
+                                key={index}
+                                className={`text-xs font-medium ${getTagTypeColor(
+                                  type
+                                )}`}
+                              >
+                                {type}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge
+                              className={`text-xs font-medium ${getTagTypeColor(
+                                tag.tagType
+                              )}`}
+                            >
+                              {tag.tagType}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
+
                       <TableCell className="text-gray-600">
                         {tag.workingOn || "-"}
                       </TableCell>
@@ -464,8 +483,8 @@ export default function TagsPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete Tag</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete the tag &quot;
-                                  {tag.label}&quot;? This action cannot be undone.
+                                  Are you sure you want to delete the tag "
+                                  {tag.label}"? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -474,8 +493,8 @@ export default function TagsPage() {
                                   onClick={() => handleDelete(tag._id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  <LoadingButton 
-                                    loading={deleteLoading === tag._id} 
+                                  <LoadingButton
+                                    loading={deleteLoading === tag._id}
                                     loadingText="Deleting..."
                                   >
                                     Delete

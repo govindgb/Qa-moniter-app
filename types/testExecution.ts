@@ -35,7 +35,7 @@ export interface CreateTestExecutionRequest {
   taskId: string;
   testId: string;
   testCases: TestCase[];
-  status: 'pending' | 'in-progress' | 'completed' | 'failed';
+  status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'pass' | 'fail';
   feedback: string;
   attachedImages?: string[];
   testerName: string;
