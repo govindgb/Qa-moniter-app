@@ -1,4 +1,5 @@
 export interface Task {
+  unitTestLabel: string;
   _id?: string;
   tags: string[];
   description: string;

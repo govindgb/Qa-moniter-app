@@ -55,7 +55,7 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
       setFormData({
         taskId: editTestExecution.taskId?._id || '',
         testId: editTestExecution.testId,
-        status: editTestExecution.status,
+        status: editTestExecution.status === 'completed' ? 'pass' : 'fail',
         feedback: editTestExecution.feedback,
         attachedImages: editTestExecution.attachedImages || [],
         testerName: editTestExecution.testerName,
@@ -173,9 +173,15 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
       };
 
       if (editTestExecution && editTestExecution._id) {
-        await updateTestExecution(editTestExecution._id, testExecutionData);
+        await updateTestExecution(editTestExecution._id, {
+          ...testExecutionData,
+          status: formData.status === 'pass' ? 'completed' : 'failed',
+        });
       } else {
-        await createTestExecution(testExecutionData);
+        await createTestExecution({
+          ...testExecutionData,
+          status: formData.status === 'pass' ? 'completed' : 'failed',
+        });
       }
 
       // Reset form after successful submission

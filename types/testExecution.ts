@@ -7,6 +7,7 @@ export interface TestCase {
 export interface TestExecution {
   _id: string;
   taskId: {
+    unitTestLabel: string;
     _id: string;
     tags: string[];
     description: string;
