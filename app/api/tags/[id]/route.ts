@@ -3,7 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Tag from '@/models/Tag';
 import { getUserFromRequest } from '@/lib/auth';
 import mongoose from 'mongoose';
-
+ 
 // PUT - Update tag
 export async function PUT(
   request: NextRequest,
@@ -22,9 +22,9 @@ export async function PUT(
         { status: 401 }
       );
     }
-
+ 
     const { id } = params;
-
+ 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
@@ -34,10 +34,10 @@ export async function PUT(
         { status: 400 }
       );
     }
-
+ 
     const body = await request.json();
     const { label, tagType, workingOn } = body;
-
+ 
     // Validation
     if (!label || !label.trim()) {
       return NextResponse.json(
@@ -48,32 +48,27 @@ export async function PUT(
         { status: 400 }
       );
     }
-
-    if (!tagType) {
+ 
+    if (!Array.isArray(tagType) || tagType.length === 0) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Tag type is required',
-        },
+        { success: false, error: 'At least one tag type is required' },
         { status: 400 }
       );
     }
-
+    
     const validTagTypes = ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'];
-    if (!validTagTypes.includes(tagType)) {
+    const hasInvalidType = tagType.some((type: string) => !validTagTypes.includes(type));
+    if (hasInvalidType) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid tag type',
-        },
+        { success: false, error: 'One or more tag types are invalid' },
         { status: 400 }
       );
     }
-
+ 
     const labelTrimmed = label.trim();
-
+ 
     // Check if tag with same label already exists (excluding current tag)
-    const existingTag = await Tag.findOne({ 
+    const existingTag = await Tag.findOne({
       label: { $regex: new RegExp(`^${labelTrimmed}$`, 'i') },
       _id: { $ne: id }
     });
@@ -87,7 +82,7 @@ export async function PUT(
         { status: 400 }
       );
     }
-
+ 
     const updatedTag = await Tag.findByIdAndUpdate(
       id,
       {
@@ -97,7 +92,7 @@ export async function PUT(
       },
       { new: true, runValidators: true }
     ).populate('createdBy', 'name email');
-
+ 
     if (!updatedTag) {
       return NextResponse.json(
         {
@@ -107,7 +102,7 @@ export async function PUT(
         { status: 404 }
       );
     }
-
+ 
     return NextResponse.json({
       success: true,
       data: updatedTag,
@@ -125,7 +120,7 @@ export async function PUT(
         { status: 400 }
       );
     }
-
+ 
     return NextResponse.json(
       {
         success: false,
@@ -135,7 +130,7 @@ export async function PUT(
     );
   }
 }
-
+ 
 // DELETE - Delete tag
 export async function DELETE(
   request: NextRequest,
@@ -154,9 +149,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
-
+ 
     const { id } = params;
-
+ 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
@@ -166,9 +161,9 @@ export async function DELETE(
         { status: 400 }
       );
     }
-
+ 
     const deletedTag = await Tag.findByIdAndDelete(id);
-
+ 
     if (!deletedTag) {
       return NextResponse.json(
         {
@@ -178,7 +173,7 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
+ 
     return NextResponse.json({
       success: true,
       message: 'Tag deleted successfully',

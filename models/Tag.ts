@@ -19,12 +19,9 @@ const TagSchema: Schema = new Schema({
     maxlength: [100, 'Tag label cannot exceed 100 characters'],
   },
   tagType: {
-    type: String,
+    type: [String],
     required: [true, 'Tag type is required'],
-    enum: {
-      values: ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'],
-      message: '{VALUE} is not a valid tag type',
-    },
+    enum: ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'],
   },
   workingOn: {
     type: String,
