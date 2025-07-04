@@ -1,7 +1,13 @@
 export interface Tag {
   _id: string;
   label: string;
-  tagType: 'Feature' | 'Application' | 'BuildVersion' | 'Environment' | 'Device' | 'Sprints';
+  tagType:
+    | "Feature"
+    | "Application"
+    | "BuildVersion"
+    | "Environment"
+    | "Device"
+    | "Sprints";
   workingOn?: string;
   createdBy: {
     _id: string;
@@ -15,7 +21,13 @@ export interface Tag {
 
 export interface CreateTagRequest {
   label: string;
-  tagType: 'Feature' | 'Application' | 'BuildVersion' | 'Environment' | 'Device' | 'Sprints';
+  tagType:
+    | "Feature"
+    | "Application"
+    | "BuildVersion"
+    | "Environment"
+    | "Device"
+    | "Sprints";
   workingOn?: string;
 }
 

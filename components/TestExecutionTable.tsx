@@ -51,7 +51,6 @@ import {
 } from "lucide-react";
 import { TestExecution } from "@/types/testExecution";
 import MultiSelectTags from "./MultiSelectTags";
-import { LoadingButton, Loader } from "@/components/ui/loader";
 
 interface TestExecutionTableProps {
   onEditTestExecution: (testExecution: TestExecution) => void;
@@ -84,9 +83,9 @@ export default function TestExecutionTable({
   const [availableLabels, setAvailableLabels] = useState<string[]>([]);
 
   useEffect(() => {
-    // Load initial data
+    // Load initial data - get only latest executions by default
     getTasks();
-    getTestExecutions();
+    getTestExecutions({ latest: true });
   }, []);
 
   useEffect(() => {
@@ -122,8 +121,8 @@ export default function TestExecutionTable({
   };
 
   const handleSearch = () => {
-    // Apply filters to get filtered test executions
-    getTestExecutions(filters);
+    // Apply filters to get ALL filtered test executions (not just latest)
+    getTestExecutions({ ...filters, latest: false });
   };
 
   const handleClearFilters = () => {
@@ -132,12 +131,15 @@ export default function TestExecutionTable({
       status: "",
       label: "",
     });
-    // Reload all data
-    getTestExecutions();
+    // Reload latest data only
+    getTestExecutions({ latest: true });
   };
 
   const handleRefresh = () => {
-    getTestExecutions(filters);
+    // If filters are applied, get all executions, otherwise get latest only
+    const hasFilters =
+      filters.tags.length > 0 || filters.status || filters.label;
+    getTestExecutions({ ...filters, latest: !hasFilters });
   };
 
   const formatDate = (dateString: string) => {
@@ -192,7 +194,10 @@ export default function TestExecutionTable({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-16">
-            <Loader size="lg" text="Loading Test Executions" className="mb-4" />
+            <RefreshCw className="h-12 w-12 text-blue-400 animate-spin mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Loading Test Executions
+            </h3>
             <p className="text-gray-500">
               Please wait while we fetch your data...
             </p>
@@ -245,6 +250,12 @@ export default function TestExecutionTable({
             <span className="text-xl font-bold text-gray-900">
               Test Executions
             </span>
+            <Badge
+              variant="outline"
+              className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+            >
+              Latest Results
+            </Badge>
           </div>
           <div className="flex items-center space-x-4">
             <Button
@@ -254,14 +265,14 @@ export default function TestExecutionTable({
               disabled={loading}
               className="border-blue-200 text-blue-700 hover:bg-blue-50"
             >
-              <LoadingButton loading={loading} loadingText="Refreshing...">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </LoadingButton>
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              Refresh
             </Button>
             <div className="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-1 rounded-lg border">
               <Filter className="h-4 w-4" />
-              <span>{testExecutions.length} total executions</span>
+              <span>{testExecutions.length} executions</span>
             </div>
           </div>
         </CardTitle>
@@ -344,7 +355,8 @@ export default function TestExecutionTable({
           {/* Action Buttons */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="text-sm text-gray-600">
-              Use filters above to narrow down test executions
+              Apply filters to search through all test executions (including
+              history)
             </div>
             <div className="flex space-x-3">
               <Button
@@ -359,10 +371,8 @@ export default function TestExecutionTable({
                 disabled={loading}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6"
               >
-                <LoadingButton loading={loading} loadingText="Applying...">
-                  <Search className="h-4 w-4 mr-2" />
-                  Apply Filters
-                </LoadingButton>
+                <Search className="h-4 w-4 mr-2" />
+                Search All History
               </Button>
             </div>
           </div>
@@ -398,12 +408,6 @@ export default function TestExecutionTable({
             <Table>
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-gray-50 to-blue-50 border-b-2 border-gray-200">
-                  <TableHead className="font-bold text-gray-800 py-4">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-4 w-4" />
-                      <span>Test ID</span>
-                    </div>
-                  </TableHead>
                   <TableHead className="font-bold text-gray-800">
                     <div className="flex items-center space-x-2">
                       <Target className="h-4 w-4" />
@@ -445,9 +449,6 @@ export default function TestExecutionTable({
                     key={execution._id}
                     className="hover:bg-blue-50/50 transition-colors border-b border-gray-100"
                   >
-                    <TableCell className="font-mono text-sm font-medium text-blue-700 py-4">
-                      {execution.testId}
-                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="font-medium text-blue-700">
                         {(execution as any).taskId?.unitTestLabel || "N/A"}
@@ -543,11 +544,7 @@ export default function TestExecutionTable({
                               className="h-8 w-8 p-0 border-red-200 text-red-700 hover:bg-red-50"
                               disabled={deleteLoading === execution._id}
                             >
-                              {deleteLoading === execution._id ? (
-                                <Loader size="sm" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -569,12 +566,9 @@ export default function TestExecutionTable({
                                 }
                                 className="bg-red-600 hover:bg-red-700"
                               >
-                                <LoadingButton 
-                                  loading={deleteLoading === execution._id} 
-                                  loadingText="Deleting..."
-                                >
-                                  Delete
-                                </LoadingButton>
+                                {deleteLoading === execution._id
+                                  ? "Deleting..."
+                                  : "Delete"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

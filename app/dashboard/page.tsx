@@ -114,7 +114,7 @@ export default function DashboardPage() {
           Welcome back, {user?.name}! 👋
         </h1>
         <p className="text-blue-100">
-          Here's an overview of your QA testing activities
+          Here&apos;s an overview of your QA testing activities
         </p>
       </div>
 

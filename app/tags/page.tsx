@@ -464,8 +464,8 @@ export default function TagsPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete Tag</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete the tag "
-                                  {tag.label}"? This action cannot be undone.
+                                  Are you sure you want to delete the tag &quot;
+                                  {tag.label}&quot;? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
