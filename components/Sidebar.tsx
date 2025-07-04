@@ -24,6 +24,7 @@ import {
   LogOut,
   User,
   ChevronDown,
+  Tags,
 } from 'lucide-react';
 
 const navigation = [
@@ -41,6 +42,11 @@ const navigation = [
     name: 'UTC_EXECUTIONS',
     href: '/test-executions',
     icon: TestTube,
+  },
+  {
+    name: 'Tags',
+    href: '/tags',
+    icon: Tags,
   },
 ];
 
