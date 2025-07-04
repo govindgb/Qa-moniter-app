@@ -1,5 +1,5 @@
 'use client';
-
+ 
 import React, { useState, useEffect } from 'react';
 import { useTestExecution } from '@/context/TestExecutionContext';
 import { Button } from '@/components/ui/button';
@@ -15,25 +15,25 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Eye, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { TestExecution } from '@/types/testExecution';
-
+ 
 interface TestHistorySidebarProps {
   isOpen: boolean;
   onClose: () => void;
   taskId: string | null;
 }
-
+ 
 export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHistorySidebarProps) {
   const { getTestExecutionsByTaskId } = useTestExecution();
   const [history, setHistory] = useState<TestExecution[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedExecution, setSelectedExecution] = useState<TestExecution | null>(null);
-
+ 
   useEffect(() => {
     if (isOpen && taskId) {
       loadHistory();
     }
   }, [isOpen, taskId]);
-
+ 
   const loadHistory = async () => {
     if (!taskId) return;
     
@@ -47,7 +47,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
       setLoading(false);
     }
   };
-
+ 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -57,7 +57,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
       minute: '2-digit',
     });
   };
-
+ 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'passed':
@@ -68,7 +68,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
         return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
   };
-
+ 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -80,12 +80,9 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
         return 'bg-gray-100 text-gray-800';
     }
   };
-
-  const getPassRate = (passed: number, total: number) => {
-    if (total === 0) return '0%';
-    return `${Math.round((passed / total) * 100)}%`;
-  };
-
+ 
+ 
+ 
   if (!isOpen) return null;
   console.log("selectedExecution",selectedExecution);
   return (
@@ -96,7 +93,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
           <X className="h-4 w-4" />
         </Button>
       </div>
-
+ 
       <ScrollArea className="flex-1 p-4">
         {loading ? (
           <div className="flex justify-center py-8">
@@ -127,16 +124,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Pass Rate:</span>
-                      <span className="font-medium">
-                        {getPassRate(execution.passedTestCases, execution.totalTestCases)}
-                        <span className="text-gray-500 ml-1">
-                          ({execution.passedTestCases}/{execution.totalTestCases})
-                        </span>
-                      </span>
-                    </div>
+                
                     
                     <div className="text-sm">
                       <span className="text-gray-600">Feedback:</span>
@@ -144,7 +132,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                         {execution.feedback}
                       </p>
                     </div>
-
+ 
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
@@ -188,7 +176,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                                 </p>
                               </div>
                             </div>
-
+ 
                             <div>
                               <label className="text-sm font-medium text-gray-600">Test Cases</label>
                               <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
@@ -209,21 +197,20 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                                 ))}
                               </div>
                             </div>
-
+ 
                             <div>
                               <label className="text-sm font-medium text-gray-600">Feedback</label>
                               <p className="text-sm mt-1 p-3 bg-gray-50 rounded">
                                 {selectedExecution.feedback}
                               </p>
                             </div>
-
+ 
                             {selectedExecution.attachedImages && selectedExecution.attachedImages.length > 0 && (
                               <div>
                                 <label className="text-sm font-medium text-gray-600">Attached Images</label>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
                                   {selectedExecution.attachedImages.map((image, index) => (
                                     <>
-                                    {console.log("->>",image)}
                                     <img
                                       key={index}
                                       src={image}
@@ -239,7 +226,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                         )}
                       </DialogContent>
                     </Dialog>
-                  </div>
+                  
                 </CardContent>
               </Card>
             ))}
@@ -249,3 +236,4 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
     </div>
   );
 }
+ 
