@@ -359,9 +359,15 @@ export default function TagsPage() {
                 <TableHeader>
                   <TableRow className="bg-gradient-to-r from-gray-50 to-blue-50 border-b-2 border-gray-200">
                     <TableHead className="font-bold text-gray-800">Label</TableHead>
+<<<<<<< HEAD
                     <TableHead className="font-bold text-gray-800">Type</TableHead>
                     <TableHead className="font-bold text-gray-800">Working On</TableHead>
                     <TableHead className="font-bold text-gray-800">Created At</TableHead>
+=======
+                    <TableHead className="font-bold text-gray-800">Tag Type</TableHead>
+                    <TableHead className="font-bold text-gray-800">Features</TableHead>
+                    <TableHead className="font-bold text-gray-800">Updated At</TableHead>
+>>>>>>> 3a76897 (feat: add Tags feature with CRUD operations and update Sidebar navigation)
                     <TableHead className="text-right font-bold text-gray-800">Actions</TableHead>
                   </TableRow>
                 </TableHeader>

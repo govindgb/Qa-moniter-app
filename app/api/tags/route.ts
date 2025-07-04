@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
     
     const userPayload = getUserFromRequest(request);
+    
     if (!userPayload) {
       return NextResponse.json(
         {
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
     const { label, tagType, workingOn } = body;
 
     // Validation
