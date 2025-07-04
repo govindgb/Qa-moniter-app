@@ -1,37 +1,54 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useTestExecution } from '@/context/TestExecutionContext';
-import { useTask } from '@/context/TaskContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { TestExecution } from '@/types/testExecution';
-import { Task } from '@/types/task';
-import ImageUpload from './ImageUpload';
-import MultiSelectTags from './MultiSelectTags';
-import { Clock, CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useTestExecution } from "@/context/TestExecutionContext";
+import { useTask } from "@/context/TaskContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { TestExecution } from "@/types/testExecution";
+import { Task } from "@/types/task";
+import ImageUpload from "./ImageUpload";
+import {
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Hash,
+  User,
+  FileText,
+} from "lucide-react";
 
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
   onSuccess?: () => void;
 }
 
-export default function TestExecutionForm({ editTestExecution, onSuccess }: TestExecutionFormProps) {
-  const { createTestExecution, updateTestExecution, loading, uploadImages } = useTestExecution();
+export default function TestExecutionForm({
+  editTestExecution,
+  onSuccess,
+}: TestExecutionFormProps) {
+  const { createTestExecution, updateTestExecution, loading, uploadImages } =
+    useTestExecution();
   const { tasks, getTasks } = useTask();
-  
+
   const [formData, setFormData] = useState({
-    taskId: '',
-    testId: '',
-    status: 'fail' as 'pass' | 'fail',
-    feedback: '',
+    taskId: "",
+    testId: "",
+    status: "fail" as "pass" | "fail",
+    feedback: "",
     attachedImages: [] as string[],
-    testerName: '',
+    testerName: "",
   });
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -43,7 +60,7 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
 
   // Generate random test ID
   const generateTestId = () => {
-    const prefix = 'TEST';
+    const prefix = "TEST";
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();
     return `${prefix}-${timestamp}-${random}`;
@@ -53,22 +70,22 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
   useEffect(() => {
     if (editTestExecution) {
       setFormData({
-        taskId: editTestExecution.taskId?._id || '',
+        taskId: editTestExecution.taskId?._id || "",
         testId: editTestExecution.testId,
-        status: editTestExecution.status === 'completed' ? 'pass' : 'fail',
+        status: editTestExecution.status === "completed" ? "pass" : "fail",
         feedback: editTestExecution.feedback,
         attachedImages: editTestExecution.attachedImages || [],
         testerName: editTestExecution.testerName,
       });
-      
+
       // Find and set selected task
-      const task = tasks.find((t:any) => t._id === editTestExecution.taskId);
+      const task = tasks.find((t: any) => t._id === editTestExecution.taskId);
       if (task) {
         setSelectedTask(task);
       }
     } else {
       // Generate new test ID for new executions
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         testId: generateTestId(),
       }));
@@ -79,25 +96,25 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: "",
       }));
     }
   };
 
   const handleTaskSelect = (taskId: string) => {
-    const task = tasks.find(t => t._id === taskId);
+    const task = tasks.find((t) => t._id === taskId);
     if (task) {
       setSelectedTask(task);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         taskId,
         // Generate new test ID when task changes (only for new executions)
@@ -106,46 +123,37 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
     }
   };
 
-  const handleStatusChange = (status: 'pass' | 'fail') => {
-    setFormData(prev => ({
+  const handleStatusChange = (status: "pass" | "fail") => {
+    setFormData((prev) => ({
       ...prev,
       status,
     }));
   };
 
   const handleImagesChange = (images: string[]) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       attachedImages: images,
     }));
-  };
-
-  const handleTagsChange = (tags: string[]) => {
-    if (selectedTask) {
-      setSelectedTask({
-        ...selectedTask,
-        tags,
-      });
-    }
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.taskId) {
-      newErrors.taskId = 'Task selection is required';
+      newErrors.taskId = "Task selection is required";
     }
 
     if (!formData.testId.trim()) {
-      newErrors.testId = 'Test ID is required';
+      newErrors.testId = "Test ID is required";
     }
 
     if (!formData.testerName.trim()) {
-      newErrors.testerName = 'Tester name is required';
+      newErrors.testerName = "Tester name is required";
     }
 
     if (!formData.feedback.trim()) {
-      newErrors.feedback = 'Feedback is required';
+      newErrors.feedback = "Feedback is required";
     }
 
     setErrors(newErrors);
@@ -154,7 +162,7 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -165,49 +173,53 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
         testId: formData.testId.trim(),
         testerName: formData.testerName.trim(),
         feedback: formData.feedback.trim(),
-        testCases: [{ // Add default test case structure
-          testCase: 'Default test case',
-          passed: formData.status === 'pass',
-          notes: formData.feedback,
-        }],
+        testCases: [
+          {
+            // Add default test case structure
+            testCase: "Default test case",
+            passed: formData.status === "pass",
+            notes: formData.feedback,
+          },
+        ],
       };
 
       if (editTestExecution && editTestExecution._id) {
         await updateTestExecution(editTestExecution._id, {
           ...testExecutionData,
-          status: formData.status === 'pass' ? 'completed' : 'failed',
+          status: formData.status === "pass" ? "completed" : "failed",
         });
       } else {
+        // Always create new test execution (no duplicate checking)
         await createTestExecution({
           ...testExecutionData,
-          status: formData.status === 'pass' ? 'completed' : 'failed',
+          status: formData.status === "pass" ? "completed" : "failed",
         });
       }
 
       // Reset form after successful submission
       if (!editTestExecution) {
         setFormData({
-          taskId: '',
+          taskId: "",
           testId: generateTestId(),
-          status: 'fail',
-          feedback: '',
+          status: "fail",
+          feedback: "",
           attachedImages: [],
-          testerName: '',
+          testerName: "",
         });
         setSelectedTask(null);
       }
 
       onSuccess?.();
     } catch (error) {
-      console.error('Error saving test execution:', error);
+      console.error("Error saving test execution:", error);
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pass':
+      case "pass":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'fail':
+      case "fail":
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-gray-600" />;
@@ -216,12 +228,12 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pass':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'fail':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case "pass":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "fail":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -230,14 +242,21 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
         <CardTitle className="flex items-center space-x-2 text-xl font-bold text-gray-900">
           <FileText className="h-6 w-6 text-blue-600" />
-          <span>{editTestExecution ? 'Edit Test Execution' : 'Create Test Execution'}</span>
+          <span>
+            {editTestExecution
+              ? "Edit Test Execution"
+              : "Create Test Execution"}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <Label htmlFor="taskId" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+              <Label
+                htmlFor="taskId"
+                className="text-sm font-semibold text-gray-700 flex items-center space-x-2"
+              >
                 <Hash className="h-4 w-4" />
                 <span>Select Unit Test Label</span>
               </Label>
@@ -246,7 +265,11 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
                 onValueChange={handleTaskSelect}
                 disabled={!!editTestExecution}
               >
-                <SelectTrigger className={`h-12 ${errors.taskId ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}>
+                <SelectTrigger
+                  className={`h-12 ${
+                    errors.taskId ? "border-red-500" : "border-gray-300"
+                  } focus:border-blue-500 focus:ring-blue-500`}
+                >
                   <SelectValue placeholder="Select a unit test label" />
                 </SelectTrigger>
                 <SelectContent>
@@ -273,7 +296,10 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="testId" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+              <Label
+                htmlFor="testId"
+                className="text-sm font-semibold text-gray-700 flex items-center space-x-2"
+              >
                 <Hash className="h-4 w-4" />
                 <span>Test ID</span>
               </Label>
@@ -283,8 +309,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
                 value={formData.testId}
                 onChange={handleInputChange}
                 placeholder="Auto-generated test ID"
-                className={`h-12 font-mono ${errors.testId ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
-                readOnly
+                className={`h-12 font-mono ${
+                  errors.testId ? "border-red-500" : "border-gray-300"
+                } focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.testId && (
                 <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -298,19 +325,39 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
           {selectedTask && (
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-gray-700">Update Tags (Optional)</Label>
-                <MultiSelectTags
-                  selectedTags={selectedTask.tags}
-                  onTagsChange={handleTagsChange}
-                  placeholder="Update tags for this task..."
-                />
+                <Label className="text-sm font-semibold text-gray-700">
+                  Selected Task Details
+                </Label>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Description:</span>{" "}
+                    {selectedTask.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-sm font-medium text-gray-600 mr-2">
+                      Tags:
+                    </span>
+                    {selectedTask.tags.map((tag, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <Label htmlFor="testerName" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+              <Label
+                htmlFor="testerName"
+                className="text-sm font-semibold text-gray-700 flex items-center space-x-2"
+              >
                 <User className="h-4 w-4" />
                 <span>Tester Name</span>
               </Label>
@@ -320,7 +367,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
                 value={formData.testerName}
                 onChange={handleInputChange}
                 placeholder="Enter tester name"
-                className={`h-12 ${errors.testerName ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
+                className={`h-12 ${
+                  errors.testerName ? "border-red-500" : "border-gray-300"
+                } focus:border-blue-500 focus:ring-blue-500`}
               />
               {errors.testerName && (
                 <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -331,7 +380,10 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+              <Label
+                htmlFor="status"
+                className="text-sm font-semibold text-gray-700 flex items-center space-x-2"
+              >
                 {getStatusIcon(formData.status)}
                 <span>Status</span>
               </Label>
@@ -361,7 +413,10 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedback" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+            <Label
+              htmlFor="feedback"
+              className="text-sm font-semibold text-gray-700 flex items-center space-x-2"
+            >
               <FileText className="h-4 w-4" />
               <span>Feedback</span>
             </Label>
@@ -372,7 +427,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
               onChange={handleInputChange}
               placeholder="Enter detailed feedback about the testing..."
               rows={5}
-              className={`${errors.feedback ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
+              className={`${
+                errors.feedback ? "border-red-500" : "border-gray-300"
+              } focus:border-blue-500 focus:ring-blue-500`}
             />
             {errors.feedback && (
               <p className="text-sm text-red-500 flex items-center space-x-1">
@@ -383,7 +440,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-gray-700">Attach Images</Label>
+            <Label className="text-sm font-semibold text-gray-700">
+              Attach Images
+            </Label>
             <ImageUpload
               images={formData.attachedImages}
               onImagesChange={handleImagesChange}
@@ -393,7 +452,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
 
           <div className="flex items-center justify-between pt-6 border-t">
             <div className="text-sm text-gray-500">
-              {editTestExecution ? 'Update existing test execution' : 'Create new test execution'}
+              {editTestExecution
+                ? "Update existing test execution"
+                : "Create new test execution"}
             </div>
             <Button
               type="submit"
@@ -406,9 +467,9 @@ export default function TestExecutionForm({ editTestExecution, onSuccess }: Test
                   Saving...
                 </>
               ) : editTestExecution ? (
-                'Update Test Execution'
+                "Update Test Execution"
               ) : (
-                'Save Test Execution'
+                "Save Test Execution"
               )}
             </Button>
           </div>
