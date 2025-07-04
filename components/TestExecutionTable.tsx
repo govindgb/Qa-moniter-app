@@ -299,7 +299,7 @@ export default function TestExecutionTable({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="status">All Status</SelectItem>
                   <SelectItem value="pass">
                     <div className="flex items-center space-x-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
@@ -342,7 +342,7 @@ export default function TestExecutionTable({
                   <SelectValue placeholder="Select unit test label" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Labels</SelectItem>
+                  <SelectItem value="label">All Labels</SelectItem>
                   {availableLabels.map((label) => (
                     <SelectItem key={label} value={label}>
                       {label}
