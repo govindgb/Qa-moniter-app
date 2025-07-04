@@ -33,7 +33,7 @@ export default function TaskHistoryPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">
-        Task History
+        Unit Case List
       </h1>
       
       <TaskTable onEditTask={handleEditTask} />

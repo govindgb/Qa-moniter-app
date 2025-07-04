@@ -47,7 +47,7 @@ export default function MultiSelectTags({
   };
 
   const filteredTags = availableTags.filter(tag =>
-    tag.toLowerCase().includes(searchValue.toLowerCase())
+    tag?.toLowerCase()?.includes(searchValue?.toLowerCase())
   );
 
   const handleTagSelect = (tag: string) => {

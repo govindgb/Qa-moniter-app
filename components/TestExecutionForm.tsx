@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -28,6 +29,26 @@ import {
   User,
   FileText,
 } from "lucide-react";
+=======
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useTestExecution } from '@/context/TestExecutionContext';
+import { useTask } from '@/context/TaskContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { TestExecution } from '@/types/testExecution';
+import { Task } from '@/types/task';
+import ImageUpload from './ImageUpload';
+import MultiSelectTags from './MultiSelectTags';
+import { Clock, CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+>>>>>>> Stashed changes
 
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
@@ -53,6 +74,7 @@ export default function TestExecutionForm({
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const router = useRouter();
 
   useEffect(() => {
     getTasks();
@@ -210,6 +232,7 @@ export default function TestExecutionForm({
       }
 
       onSuccess?.();
+      router.push('/test-executions');
     } catch (error) {
       console.error("Error saving test execution:", error);
     }
