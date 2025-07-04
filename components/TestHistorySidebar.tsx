@@ -60,12 +60,10 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'passed':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'failed':
         return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'in-progress':
-        return <Clock className="h-4 w-4 text-blue-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
@@ -75,8 +73,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
+     
       case 'failed':
         return 'bg-red-100 text-red-800';
       default:

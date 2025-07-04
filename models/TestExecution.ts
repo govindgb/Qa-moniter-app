@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ITestExecution extends Document {
   taskId: mongoose.Types.ObjectId;
   testId: string;
-  status: 'pass' | 'fail' | 'completed' | 'failed';
+  status: 'pass' | 'fail' ;
   feedback: string;
   attachedImages?: string[];
   testerName: string;
@@ -27,7 +27,7 @@ const TestExecutionSchema: Schema = new Schema({
   status: {
     type: String,
     enum: {
-      values: ['failed', 'completed','pass','fail'],
+      values: ['pass','fail'],
       message: '{VALUE} is not a valid status. Use "pass" or "fail".',
     },
     lowercase: true,
