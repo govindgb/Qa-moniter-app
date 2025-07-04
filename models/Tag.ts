@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITag extends Document {
-  name: string;
+  label: string;
+  tagType: 'Feature' | 'Application' | 'BuildVersion' | 'Environment' | 'Device' | 'Sprints';
+  workingOn?: string;
   createdBy: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
@@ -9,13 +11,25 @@ export interface ITag extends Document {
 }
 
 const TagSchema: Schema = new Schema({
-  name: {
+  label: {
     type: String,
-    required: [true, 'Tag name is required'],
-    unique: true,
+    required: [true, 'Tag label is required'],
     trim: true,
-    minlength: [1, 'Tag name must be at least 1 character'],
-    maxlength: [50, 'Tag name cannot exceed 50 characters'],
+    minlength: [1, 'Tag label must be at least 1 character'],
+    maxlength: [100, 'Tag label cannot exceed 100 characters'],
+  },
+  tagType: {
+    type: String,
+    required: [true, 'Tag type is required'],
+    enum: {
+      values: ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'],
+      message: '{VALUE} is not a valid tag type',
+    },
+  },
+  workingOn: {
+    type: String,
+    trim: true,
+    maxlength: [200, 'Working on description cannot exceed 200 characters'],
   },
   createdBy: {
     type: Schema.Types.ObjectId,
@@ -31,7 +45,8 @@ const TagSchema: Schema = new Schema({
 });
 
 // Add indexes
-TagSchema.index({ name: 1 });
+TagSchema.index({ label: 1 });
+TagSchema.index({ tagType: 1 });
 TagSchema.index({ createdBy: 1 });
 TagSchema.index({ isActive: 1 });
 

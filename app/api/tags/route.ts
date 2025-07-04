@@ -4,18 +4,34 @@ import Tag from '@/models/Tag';
 import { getUserFromRequest } from '@/lib/auth';
 
 // GET - Fetch all active tags
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
     
-    const tags = await Tag.find({ isActive: true })
-      .sort({ name: 1 })
-      .select('name');
+    const { searchParams } = new URL(request.url);
+    const includeDetails = searchParams.get('includeDetails') === 'true';
     
-    return NextResponse.json({
-      success: true,
-      data: tags.map(tag => tag.name),
-    });
+    if (includeDetails) {
+      // Return full tag details for management
+      const tags = await Tag.find({ isActive: true })
+        .populate('createdBy', 'name email')
+        .sort({ createdAt: -1 });
+      
+      return NextResponse.json({
+        success: true,
+        data: tags,
+      });
+    } else {
+      // Return only tag labels for dropdown (backward compatibility)
+      const tags = await Tag.find({ isActive: true })
+        .sort({ label: 1 })
+        .select('label');
+      
+      return NextResponse.json({
+        success: true,
+        data: tags.map(tag => tag.label),
+      });
+    }
   } catch (error) {
     console.error('Error fetching tags:', error);
     return NextResponse.json(
@@ -45,45 +61,72 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { tag } = body;
+    const { label, tagType, workingOn } = body;
 
-    if (!tag || !tag.trim()) {
+    // Validation
+    if (!label || !label.trim()) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Tag name is required',
+          error: 'Tag label is required',
         },
         { status: 400 }
       );
     }
 
-    const tagName = tag.trim();
+    if (!tagType) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Tag type is required',
+        },
+        { status: 400 }
+      );
+    }
 
-    // Check if tag already exists
+    const validTagTypes = ['Feature', 'Application', 'BuildVersion', 'Environment', 'Device', 'Sprints'];
+    if (!validTagTypes.includes(tagType)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid tag type',
+        },
+        { status: 400 }
+      );
+    }
+
+    const labelTrimmed = label.trim();
+
+    // Check if tag with same label already exists
     const existingTag = await Tag.findOne({ 
-      name: { $regex: new RegExp(`^${tagName}$`, 'i') } 
+      label: { $regex: new RegExp(`^${labelTrimmed}$`, 'i') } 
     });
     
     if (existingTag) {
-      return NextResponse.json({
-        success: true,
-        message: 'Tag already exists',
-        data: existingTag.name,
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Tag with this label already exists',
+        },
+        { status: 400 }
+      );
     }
 
     // Create new tag
     const newTag = new Tag({
-      name: tagName,
+      label: labelTrimmed,
+      tagType,
+      workingOn: workingOn?.trim() || '',
       createdBy: userPayload.userId,
     });
 
     const savedTag = await newTag.save();
+    await savedTag.populate('createdBy', 'name email');
 
     return NextResponse.json({
       success: true,
       message: 'Tag created successfully',
-      data: savedTag.name,
+      data: savedTag,
     });
   } catch (error) {
     console.error('Error creating tag:', error);
