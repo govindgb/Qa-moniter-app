@@ -409,21 +409,11 @@ export default function TagsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gradient-to-r from-gray-50 to-blue-50 border-b-2 border-gray-200">
-                    <TableHead className="font-bold text-gray-800">
-                      Label
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-800">
-                      Type
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-800">
-                      Working On
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-800">
-                      Created At
-                    </TableHead>
-                    <TableHead className="text-right font-bold text-gray-800">
-                      Actions
-                    </TableHead>
+                    <TableHead className="font-bold text-gray-800">Label</TableHead>
+                    <TableHead className="font-bold text-gray-800">Tag Type</TableHead>
+                    <TableHead className="font-bold text-gray-800">Features</TableHead>
+                    <TableHead className="font-bold text-gray-800">Updated At</TableHead>
+                    <TableHead className="text-right font-bold text-gray-800">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

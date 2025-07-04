@@ -1,34 +1,21 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useTestExecution } from "@/context/TestExecutionContext";
-import { useTask } from "@/context/TaskContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { TestExecution } from "@/types/testExecution";
-import { Task } from "@/types/task";
-import ImageUpload from "./ImageUpload";
-import MultiSelectTags from "./MultiSelectTags";
-import {
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Hash,
-  User,
-  FileText,
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useTestExecution } from '@/context/TestExecutionContext';
+import { useTask } from '@/context/TaskContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { TestExecution } from '@/types/testExecution';
+import { Task } from '@/types/task';
+import ImageUpload from './ImageUpload';
+import MultiSelectTags from './MultiSelectTags';
+import { Clock, CheckCircle, XCircle, AlertCircle, Hash, User, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
@@ -59,7 +46,6 @@ export default function TestExecutionForm({
     getTasks();
   }, []);
 
-  // Generate random test ID
   const generateTestId = () => {
     const prefix = "TEST";
     const timestamp = Date.now().toString().slice(-6);
@@ -67,7 +53,6 @@ export default function TestExecutionForm({
     return `${prefix}-${timestamp}-${random}`;
   };
 
-  // Pre-populate form if editing
   useEffect(() => {
     if (editTestExecution) {
       setFormData({
@@ -79,13 +64,11 @@ export default function TestExecutionForm({
         testerName: editTestExecution.testerName,
       });
 
-      // Find and set selected task
       const task = tasks.find((t: any) => t._id === editTestExecution.taskId);
       if (task) {
         setSelectedTask(task);
       }
     } else {
-      // Generate new test ID for new executions
       setFormData((prev) => ({
         ...prev,
         testId: generateTestId(),
@@ -102,7 +85,6 @@ export default function TestExecutionForm({
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -118,7 +100,6 @@ export default function TestExecutionForm({
       setFormData((prev) => ({
         ...prev,
         taskId,
-        // Generate new test ID when task changes (only for new executions)
         testId: editTestExecution ? prev.testId : generateTestId(),
       }));
     }
@@ -177,35 +158,29 @@ export default function TestExecutionForm({
       return;
     }
 
-    try {
-      const testExecutionData = {
-        ...formData,
-        testId: formData.testId.trim(),
-        testerName: formData.testerName.trim(),
-        feedback: formData.feedback.trim(),
-        testCases: [
-          {
-            // Add default test case structure
-            testCase: "Default test case",
-            passed: formData.status === "pass",
-            notes: formData.feedback,
-          },
-        ],
-      };
+    const testExecutionData = {
+      taskId: formData.taskId,
+      testId: formData.testId.trim(),
+      status: formData.status === "pass" ? "completed" : "failed",
+      feedback: formData.feedback.trim(),
+      attachedImages: formData.attachedImages,
+      testerName: formData.testerName.trim(),
+      testCases: [
+        {
+          testCase: "Default test case",
+          passed: formData.status === "pass",
+          notes: formData.feedback,
+        },
+      ],
+    };
 
+    try {
       if (editTestExecution && editTestExecution._id) {
-        await updateTestExecution(editTestExecution._id, {
-          ...testExecutionData,
-          status: formData.status === "pass" ? "completed" : "failed",
-        });
+        await updateTestExecution(editTestExecution._id, testExecutionData);
       } else {
-        await createTestExecution({
-          ...testExecutionData,
-          status: formData.status === "pass" ? "completed" : "failed",
-        });
+        await createTestExecution(testExecutionData);
       }
 
-      // Reset form after successful submission
       if (!editTestExecution) {
         setFormData({
           taskId: "",
