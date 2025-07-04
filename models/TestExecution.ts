@@ -19,7 +19,7 @@ const TestExecutionSchema: Schema = new Schema({
     ref: 'Task',
     required: [true, 'Task ID is required'],
   },
-  testId: {
+  execId: {
     type: String,
     required: [true, 'Test ID is required'],
     trim: true,

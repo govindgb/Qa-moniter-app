@@ -511,14 +511,14 @@ export default function TestExecutionTable({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
-                        <Button
+                        {/* <Button
                           variant="outline"
                           size="sm"
                           onClick={() => onEditTestExecution(execution)}
                           className="h-8 w-8 p-0 border-blue-200 text-blue-700 hover:bg-blue-50"
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
 
                         <Button
                           variant="outline"
@@ -538,14 +538,14 @@ export default function TestExecutionTable({
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
+                            {/* <Button
                               variant="outline"
                               size="sm"
                               className="h-8 w-8 p-0 border-red-200 text-red-700 hover:bg-red-50"
                               disabled={deleteLoading === execution._id}
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
+                            </Button> */}
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
