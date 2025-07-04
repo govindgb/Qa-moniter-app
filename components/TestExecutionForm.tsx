@@ -41,7 +41,7 @@ export default function TestExecutionForm({
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const router = useRouter();
   useEffect(() => {
     getTasks();
   }, []);
@@ -161,7 +161,7 @@ export default function TestExecutionForm({
     const testExecutionData = {
       taskId: formData.taskId,
       testId: formData.testId.trim(),
-      status: formData.status === "pass" ? "completed" : "failed",
+      status: (formData.status === "pass" ? "completed" : "failed") as "completed" | "failed",
       feedback: formData.feedback.trim(),
       attachedImages: formData.attachedImages,
       testerName: formData.testerName.trim(),
@@ -173,6 +173,7 @@ export default function TestExecutionForm({
         },
       ],
     };
+    
 
     try {
       if (editTestExecution && editTestExecution._id) {
@@ -194,6 +195,7 @@ export default function TestExecutionForm({
       }
 
       onSuccess?.();
+      router.push('/test-executions');
     } catch (error) {
       console.error("Error saving test execution:", error);
     }
