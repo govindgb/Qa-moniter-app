@@ -8,7 +8,7 @@ export interface Tag {
     | "Environment"
     | "Device"
     | "Sprints";
-  workingOn?: string;
+  description?: string;
   createdBy: {
     _id: string;
     name: string;
@@ -28,7 +28,7 @@ export interface CreateTagRequest {
     | "Environment"
     | "Device"
     | "Sprints";
-  workingOn?: string;
+  description?: string;
 }
 
 export interface UpdateTagRequest extends CreateTagRequest {

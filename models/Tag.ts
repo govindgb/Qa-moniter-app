@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ITag extends Document {
   label: string;
   tagType: 'Feature' | 'Application' | 'BuildVersion' | 'Environment' | 'Device' | 'Sprints';
-  workingOn?: string;
+  description?: string;
   createdBy: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
