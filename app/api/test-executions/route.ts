@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import TestExecution from '@/models/TestExecution';
-import Task from '@/models/Task';
+import TestExecution from '@/models/TestExecutions';
+import Task from '@/models/Tasks';
 
 // GET - Fetch all test executions with filters
 export async function GET(request: NextRequest) {
