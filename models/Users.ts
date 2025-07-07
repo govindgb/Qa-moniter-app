@@ -64,9 +64,4 @@ UserSchema.methods.comparePassword = async function(candidatePassword: string): 
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Add indexes
-UserSchema.index({ email: 1 });
-UserSchema.index({ role: 1 });
-UserSchema.index({ isActive: 1 });
-
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

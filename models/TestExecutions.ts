@@ -49,10 +49,4 @@ const TestExecutionSchema: Schema = new Schema({
   timestamps: true,
 });
 
-// // Indexes
-// TestExecutionSchema.index({ taskId: 1 });
-// TestExecutionSchema.index({ execId: 1 });
-// TestExecutionSchema.index({ status: 1 });
-// TestExecutionSchema.index({ createdAt: -1 });
-
 export default mongoose.models.TestExecution || mongoose.model<ITestExecution>('TestExecution', TestExecutionSchema);

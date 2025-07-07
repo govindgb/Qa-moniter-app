@@ -41,10 +41,5 @@ const TagSchema: Schema = new Schema({
   timestamps: true,
 });
 
-// Add indexes
-TagSchema.index({ label: 1 });
-TagSchema.index({ tagType: 1 });
-TagSchema.index({ createdBy: 1 });
-TagSchema.index({ isActive: 1 });
 
 export default mongoose.models.Tag || mongoose.model<ITag>('Tag', TagSchema);
