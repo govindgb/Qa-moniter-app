@@ -6,13 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import {
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -402,9 +395,9 @@ export default function TagsPage() {
                     <TableHead className="font-bold text-gray-800">
                       Tag Type
                     </TableHead>
-                    <TableHead className="font-bold text-gray-800">
+                    {/* <TableHead className="font-bold text-gray-800">
                       Features
-                    </TableHead>
+                    </TableHead> */}
                     <TableHead className="font-bold text-gray-800">
                       Updated At
                     </TableHead>
@@ -447,9 +440,9 @@ export default function TagsPage() {
                         </div>
                       </TableCell>
 
-                      <TableCell className="text-gray-600">
+                      {/* <TableCell className="text-gray-600">
                         {tag.description || "-"}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell className="text-gray-500 text-sm">
                         {formatDate(tag.createdAt)}
                       </TableCell>
