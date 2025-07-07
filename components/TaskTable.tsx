@@ -84,9 +84,23 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
             <p className="text-red-500">Error: {error}</p>
           </div>
         ) : tasks.length === 0 ? (
-          <div className="flex justify-center py-8">
-            <p className="text-gray-500">No UTC cases found. Create your first case above!</p>
-          </div>
+          <div className="flex items-center justify-center h-72 bg-blue-50 rounded-lg border border-blue-100">
+  <div className="text-center">
+    <div className="flex justify-center mb-4">
+      {/* You can replace this SVG with any icon you use, like Lucide/Feather/FontAwesome */}
+      <div className="bg-blue-100 p-4 rounded-full">
+        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+    </div>
+    <h3 className="text-lg font-semibold text-blue-800">No UTC Cases Found</h3>
+    <p className="text-sm text-blue-600 mt-1">
+      Create your first case using the <strong>Add Unit Test Case</strong> button above!
+    </p>
+  </div>
+</div>
+
         ) : (
           <div className="rounded-md border">
             <Table>
