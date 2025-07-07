@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
     // Build match conditions
     const matchConditions: any = {};
 
-    // Filter by status
-    if (status && status.trim() !== '') {
+    // Filter by status (only pass or fail)
+    if (status && status.trim() !== '' && ['pass', 'fail'].includes(status.toLowerCase())) {
       matchConditions.status = status.toLowerCase();
     }
 
@@ -112,16 +112,27 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
     
     const body = await request.json();
-    const { taskId, testId, status, feedback, attachedImages, testerName } = body;
+    const { taskId, execId, status, feedback, attachedImages, testerName } = body;
 
     console.log('Received test execution data:', body);
 
     // Validation
-    if (!taskId || !testId || !feedback || !testerName) {
+    if (!taskId || !execId || !feedback || !testerName) {
       return NextResponse.json(
         {
           success: false,
           error: 'Task ID, Test ID, feedback, and tester name are required',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate status
+    if (status && !['pass', 'fail'].includes(status.toLowerCase())) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Status must be either "pass" or "fail"',
         },
         { status: 400 }
       );
@@ -139,11 +150,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new test execution (always create new, don't update existing)
+    // Create new test execution
     const testExecution = new TestExecution({
       taskId,
-      testId: testId.trim(),
-      status: status || 'fail',
+      execId: execId.trim(),
+      status: status ? status.toLowerCase() : 'fail',
       feedback: feedback.trim(),
       attachedImages: attachedImages || [],
       testerName: testerName.trim(),

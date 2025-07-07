@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useTestExecution } from "@/context/TestExecutionContext";
 import { useTask } from "@/context/TaskContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -47,7 +46,6 @@ import {
   Tag,
   CheckCircle,
   XCircle,
-  AlertCircle,
 } from "lucide-react";
 import { TestExecution } from "@/types/testExecution";
 import MultiSelectTags from "./MultiSelectTags";
@@ -154,33 +152,24 @@ export default function TestExecutionTable({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "completed":
       case "pass":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "failed":
       case "fail":
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
       case "pass":
         return "bg-green-100 text-green-800 border-green-200";
-      case "failed":
       case "fail":
         return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-red-100 text-red-800 border-red-200";
     }
-  };
-
-  const getPassRate = (passed: number, total: number) => {
-    if (total === 0) return "0%";
-    return `${Math.round((passed / total) * 100)}%`;
   };
 
   if (loading && testExecutions.length === 0) {
@@ -250,12 +239,6 @@ export default function TestExecutionTable({
             <span className="text-xl font-bold text-gray-900">
               Test Executions
             </span>
-            <Badge
-              variant="outline"
-              className="text-xs bg-blue-50 text-blue-700 border-blue-200"
-            >
-              Latest Results
-            </Badge>
           </div>
           <div className="flex items-center space-x-4">
             <Button
@@ -321,8 +304,6 @@ export default function TestExecutionTable({
                       <span>Fail</span>
                     </div>
                   </SelectItem>
-                  
-                 
                 </SelectContent>
               </Select>
             </div>
@@ -427,9 +408,9 @@ export default function TestExecutionTable({
                       <span>Tester</span>
                     </div>
                   </TableHead>
-                  <TableHead className="font-bold text-gray-800">
+                  {/* <TableHead className="font-bold text-gray-800">
                     Feedback
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead className="font-bold text-gray-800">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4" />
@@ -491,7 +472,7 @@ export default function TestExecutionTable({
                     <TableCell className="text-sm font-medium text-gray-700">
                       {execution.testerName}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="max-w-xs">
                         <p
                           className="text-sm text-gray-700 truncate"
@@ -502,13 +483,13 @@ export default function TestExecutionTable({
                             : execution.feedback}
                         </p>
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-sm text-gray-500">
                       {execution.createdAt &&
                         formatDate(execution.createdAt.toString())}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-2 justify-end center">
                         {/* <Button
                           variant="outline"
                           size="sm"
@@ -517,7 +498,6 @@ export default function TestExecutionTable({
                         >
                           <Edit className="h-4 w-4" />
                         </Button> */}
-
                         <Button
                           variant="outline"
                           size="sm"

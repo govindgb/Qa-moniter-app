@@ -66,7 +66,7 @@ export async function PUT(
     const body = await request.json();
     const {
       taskId,
-      testId,
+      execId,
       testCases,
       status,
       feedback,
@@ -85,53 +85,40 @@ export async function PUT(
     }
 
     // Validation
-    if (!taskId || !testId || !testCases || !feedback || !testerName) {
+    if (!taskId || !execId || !feedback || !testerName) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Task ID, Test ID, test cases, feedback, and tester name are required",
+          error: "Task ID, Test ID, feedback, and tester name are required",
         },
         { status: 400 }
       );
     }
 
-    // Normalize status to allowed values
-    let normalizedStatus = "fail";
-    if (typeof status === "string") {
-      if (
-        status.toLowerCase() === "pass" ||
-        status.toLowerCase() === "passed" ||
-        status.toLowerCase() === "completed"
-      ) {
-        normalizedStatus = "pass";
-      } else if (
-        status.toLowerCase() === "fail" ||
-        status.toLowerCase() === "failed"
-      ) {
-        normalizedStatus = "fail";
-      }
+    // Validate status
+    if (status && !["pass", "fail"].includes(status.toLowerCase())) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Status must be either "pass" or "fail"',
+        },
+        { status: 400 }
+      );
     }
-
-    // Calculate passed test cases
-    const passedTestCases = testCases.filter((tc: any) => tc.passed).length;
-    const totalTestCases = testCases.length;
 
     const updatedTestExecution = await TestExecution.findByIdAndUpdate(
       id,
       {
         taskId,
-        testId: testId.trim(),
-        testCases,
-        status: normalizedStatus,
+        execId: execId.trim(),
+        testCases: testCases || [],
+        status: status ? status.toLowerCase() : "fail",
         feedback: feedback.trim(),
         attachedImages: attachedImages || [],
         testerName: testerName.trim(),
-        passedTestCases,
-        totalTestCases,
       },
       { new: true, runValidators: true }
-    ).populate("taskId", "description tags");
+    ).populate("taskId", "unitTestLabel description tags");
 
     if (!updatedTestExecution) {
       return NextResponse.json(
