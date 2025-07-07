@@ -47,4 +47,4 @@ TagSchema.index({ tagType: 1 });
 TagSchema.index({ createdBy: 1 });
 TagSchema.index({ isActive: 1 });
 
-export default mongoose.models.Tag || mongoose.model<ITag>('Tag', TagSchema);
+export default mongoose.models.Tag || mongoose.model<ITag>('Tags', TagSchema);
