@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import Task from '@/models/Task';
+import Task from '@/models/Tasks';
 
 // GET - Fetch all tasks
 export async function GET() {
