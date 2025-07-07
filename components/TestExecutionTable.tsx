@@ -369,9 +369,8 @@ export default function TestExecutionTable({
                 disabled={loading}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6"
               >
-                <Search className="h-4 w-4 mr-2" />Apply filters to search through all test executions (including
-              history)
-                Search All History
+                <Search className="h-4 w-4 mr-2" />
+                Search
               </Button>
             </div>
           </div>
