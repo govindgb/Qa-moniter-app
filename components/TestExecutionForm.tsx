@@ -58,7 +58,7 @@ export default function TestExecutionForm({
     if (editTestExecution) {
       setFormData({
         taskId: editTestExecution.taskId?._id || "",
-        status: editTestExecution.status === "completed" ? "pass" : "fail",
+        status: editTestExecution.status,
         feedback: editTestExecution.feedback,
         attachedImages: editTestExecution.attachedImages || [],
       });
@@ -67,7 +67,7 @@ export default function TestExecutionForm({
     }
   }, [editTestExecution, tasks]);
 
-  const generateTestId = () => {
+  const generateexecId = () => {
     const prefix = "TEST";
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();
@@ -116,7 +116,7 @@ export default function TestExecutionForm({
 
     const payload = {
       ...formData,
-      testId: generateTestId(),
+      execId: generateexecId(),
       testerName: user?.name || "",
       feedback: formData.feedback.trim(),
       testCases: [
@@ -254,7 +254,7 @@ export default function TestExecutionForm({
           {/* Submit Button */}
           <div className="flex items-center justify-between pt-6 border-t">
             <div className="text-sm text-gray-500">
-              {editTestExecution ? "Update existing test execution" : "Create new test execution"}
+              {/* {editTestExecution ? "Update existing test execution" : "Create new test execution"} */}
             </div>
             <Button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               {loading ? (

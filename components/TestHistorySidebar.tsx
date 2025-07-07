@@ -1,5 +1,5 @@
 'use client';
- 
+
 import React, { useState, useEffect } from 'react';
 import { useTestExecution } from '@/context/TestExecutionContext';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Eye, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { X, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { TestExecution } from '@/types/testExecution';
  
 interface TestHistorySidebarProps {
@@ -60,31 +60,28 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
  
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
+      case 'pass':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'failed':
+      case 'fail':
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
     }
   };
- 
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'pass':
         return 'bg-green-100 text-green-800';
-     
-      case 'failed':
+      case 'fail':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-red-100 text-red-800';
     }
   };
- 
- 
- 
+
   if (!isOpen) return null;
-  console.log("selectedExecution",selectedExecution);
+
   return (
     <div className="fixed inset-y-0 right-0 w-96 bg-white shadow-xl border-l z-50 flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
@@ -93,7 +90,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
           <X className="h-4 w-4" />
         </Button>
       </div>
- 
+
       <ScrollArea className="flex-1 p-4">
         {loading ? (
           <div className="flex justify-center py-8">
@@ -110,7 +107,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium">
-                      Test ID: {execution.testId}
+                      Test ID: {execution.execId}
                     </CardTitle>
                     <Badge className={`text-xs ${getStatusColor(execution.status)}`}>
                       {execution.status}
@@ -124,15 +121,13 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                
-                    
+                  <div className="space-y-2">
                     <div className="text-sm">
                       <span className="text-gray-600">Feedback:</span>
                       <p className="mt-1 text-xs text-gray-800 line-clamp-2">
                         {execution.feedback}
                       </p>
                     </div>
- 
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
@@ -154,7 +149,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <label className="text-sm font-medium text-gray-600">Test ID</label>
-                                <p className="font-mono text-sm">{selectedExecution.testId}</p>
+                                <p className="font-mono text-sm">{selectedExecution.execId}</p>
                               </div>
                               <div>
                                 <label className="text-sm font-medium text-gray-600">Status</label>
@@ -176,35 +171,37 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                                 </p>
                               </div>
                             </div>
- 
-                            <div>
-                              <label className="text-sm font-medium text-gray-600">Test Cases</label>
-                              <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
-                                {selectedExecution?.testCases?.map((testCase, index) => (
-                                  <div key={index} className="flex items-start space-x-3 p-2 border rounded">
-                                    {testCase.passed ? (
-                                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
-                                    ) : (
-                                      <XCircle className="h-4 w-4 text-red-600 mt-0.5" />
-                                    )}
-                                    <div className="flex-1">
-                                      <p className="text-sm">{testCase.testCase}</p>
-                                      {testCase.notes && (
-                                        <p className="text-xs text-gray-600 mt-1">{testCase.notes}</p>
+
+                            {selectedExecution?.testCases && selectedExecution.testCases.length > 0 && (
+                              <div>
+                                <label className="text-sm font-medium text-gray-600">Test Cases</label>
+                                <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+                                  {selectedExecution.testCases.map((testCase, index) => (
+                                    <div key={index} className="flex items-start space-x-3 p-2 border rounded">
+                                      {testCase.passed ? (
+                                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                                      ) : (
+                                        <XCircle className="h-4 w-4 text-red-600 mt-0.5" />
                                       )}
+                                      <div className="flex-1">
+                                        <p className="text-sm">{testCase.testCase}</p>
+                                        {testCase.notes && (
+                                          <p className="text-xs text-gray-600 mt-1">{testCase.notes}</p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
-                            </div>
- 
+                            )}
+
                             <div>
                               <label className="text-sm font-medium text-gray-600">Feedback</label>
                               <p className="text-sm mt-1 p-3 bg-gray-50 rounded">
                                 {selectedExecution.feedback}
                               </p>
                             </div>
- 
+
                             {selectedExecution.attachedImages && selectedExecution.attachedImages.length > 0 && (
                               <div>
                                 <label className="text-sm font-medium text-gray-600">Attached Images</label>
@@ -226,7 +223,7 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
                         )}
                       </DialogContent>
                     </Dialog>
-                  
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -236,4 +233,3 @@ export default function TestHistorySidebar({ isOpen, onClose, taskId }: TestHist
     </div>
   );
 }
- 

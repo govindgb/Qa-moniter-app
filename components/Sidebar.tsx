@@ -34,12 +34,12 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: 'UTC_CASES',
+    name: 'Unit Test Cases',
     href: '/unit-case-list',
     icon: Plus,
   },
   {
-    name: 'UTC_EXECUTIONS',
+    name: 'Executions',
     href: '/test-executions',
     icon: TestTube,
   },

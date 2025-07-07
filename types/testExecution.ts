@@ -12,30 +12,27 @@ export interface TestExecution {
     tags: string[];
     description: string;
   };
-  testId: string;
+  execId: string;
   testCases: {
     testCase: string;
     passed: boolean;
     notes: string;
     _id: string;
   }[];
-  status: 'pending' | 'completed' | 'in-progress' | 'failed';
+  status: 'pass' | 'fail';
   feedback: string;
   attachedImages: string[];
   testerName: string;
-  passedTestCases: number;
-  totalTestCases: number;
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
-
 export interface CreateTestExecutionRequest {
   taskId: string;
-  testId: string;
+  execId: string;
   testCases: TestCase[];
-  status: 'pending' | 'in-progress' | 'completed' | 'failed' | 'pass' | 'fail';
+  status: 'pass' | 'fail';
   feedback: string;
   attachedImages?: string[];
   testerName: string;
