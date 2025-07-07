@@ -311,7 +311,7 @@ export default function TagsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">What are you working on?</Label>
+                  <Label htmlFor="description">Description</Label>
                   <Input
                     id="description"
                     value={formData.description}
