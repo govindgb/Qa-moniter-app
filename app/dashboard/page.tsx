@@ -170,7 +170,7 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
-          Welcome back, {user?.name}! 👋
+          Welcome k, {user?.name}! 👋
         </h1>
         <p className="text-blue-100">
           Here&apos;s an overview of your QA testing activities
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 No test status data available
                 {selectedTag !== 'all' && (
                   <div className="text-center">
-                    <p>for tag &quot;{selectedTag}&quot;</p>
+                    <p>for tag "{selectedTag}"</p>
                   </div>
                 )}
               </div>
