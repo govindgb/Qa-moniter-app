@@ -36,7 +36,7 @@ export async function PUT(
     }
  
     const body = await request.json();
-    const { label, tagType, workingOn } = body;
+    const { label, tagType, description } = body;
  
     // Validation
     if (!label || !label.trim()) {
@@ -88,7 +88,7 @@ export async function PUT(
       {
         label: labelTrimmed,
         tagType,
-        workingOn: workingOn?.trim() || '',
+        description: description?.trim() || '',
       },
       { new: true, runValidators: true }
     ).populate('createdBy', 'name email');

@@ -49,7 +49,7 @@ interface Tag {
   _id: string;
   label: string;
   tagType: string;
-  workingOn?: string;
+  description?: string;
   createdBy: {
     name: string;
     email: string;
@@ -79,7 +79,7 @@ export default function TagsPage() {
   const [formData, setFormData] = useState({
     label: "",
     tagType: [] as string[],
-    workingOn: "",
+    description: "",
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -107,7 +107,7 @@ export default function TagsPage() {
     setFormData({
       label: "",
       tagType: [] as string[],
-      workingOn: "",
+      description: "",
     });
     setFormErrors({});
     setEditingTag(null);
@@ -119,7 +119,7 @@ export default function TagsPage() {
       setFormData({
         label: tag.label,
         tagType: Array.isArray(tag.tagType) ? tag.tagType : [tag.tagType],
-        workingOn: tag.workingOn || "",
+        description: tag.description || "",
       });
     } else {
       resetForm();
@@ -161,7 +161,7 @@ export default function TagsPage() {
       const payload = {
         label: formData.label.trim(),
         tagType: formData.tagType,
-        workingOn: formData.workingOn.trim(),
+        description: formData.description.trim(),
       };
 
       if (editingTag) {
@@ -311,14 +311,14 @@ export default function TagsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="workingOn">What are you working on?</Label>
+                  <Label htmlFor="description">What are you working on?</Label>
                   <Input
-                    id="workingOn"
-                    value={formData.workingOn}
+                    id="description"
+                    value={formData.description}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        workingOn: e.target.value,
+                        description: e.target.value,
                       }))
                     }
                     placeholder="Describe what you're working on"
@@ -448,7 +448,7 @@ export default function TagsPage() {
                       </TableCell>
 
                       <TableCell className="text-gray-600">
-                        {tag.workingOn || "-"}
+                        {tag.description || "-"}
                       </TableCell>
                       <TableCell className="text-gray-500 text-sm">
                         {formatDate(tag.createdAt)}
@@ -483,8 +483,8 @@ export default function TagsPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete Tag</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete the tag "
-                                  {tag.label}"? This action cannot be undone.
+                                  Are you sure you want to delete the tag `
+                                  {tag.label}`? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

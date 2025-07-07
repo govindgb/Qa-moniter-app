@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
  
     const body = await request.json();
-    const { label, tagType, workingOn } = body;
+    const { label, tagType, description } = body;
  
     // Validate label
     if (!label || !label.trim()) {
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     const newTag = new Tag({
       label: labelTrimmed,
       tagType,
-      workingOn: workingOn?.trim() || '',
+      description: description?.trim() || '',
       createdBy: userPayload.userId,
     });
  
