@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, FileText } from 'lucide-react';
 import { Task } from '@/types/task';
 import { LoadingButton, Loader } from '@/components/ui/loader';
 
@@ -63,18 +63,31 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <CardTitle>Created UTC Cases</CardTitle>
-        <Button
-          onClick={() => router.push('/create-task')}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Unit Test Case
-        </Button>
+    <Card className="shadow-lg border-0">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="h-6 w-6 text-blue-600" />
+            <span className="text-xl font-bold text-gray-900">
+              Created UTC Cases
+            </span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={() => router.push('/create-task')}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Unit Test Case
+            </Button>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-1 rounded-lg border">
+              <FileText className="h-4 w-4" />
+              <span>{tasks.length} cases</span>
+            </div>
+          </div>
+        </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {loading && tasks.length === 0 ? (
           <div className="flex justify-center py-8">
             <Loader text="Loading tasks..." />
@@ -84,23 +97,26 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
             <p className="text-red-500">Error: {error}</p>
           </div>
         ) : tasks.length === 0 ? (
-          <div className="flex items-center justify-center h-72 bg-blue-50 rounded-lg border border-blue-100">
-  <div className="text-center">
-    <div className="flex justify-center mb-4">
-      {/* You can replace this SVG with any icon you use, like Lucide/Feather/FontAwesome */}
-      <div className="bg-blue-100 p-4 rounded-full">
-        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-    </div>
-    <h3 className="text-lg font-semibold text-blue-800">No UTC Cases Found</h3>
-    <p className="text-sm text-blue-600 mt-1">
-      Create your first case using the <strong>Add Unit Test Case</strong> button above!
-    </p>
-  </div>
-</div>
-
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-12 max-w-lg text-center">
+              <div className="bg-blue-100 rounded-full p-4 w-fit mx-auto mb-6">
+                <FileText className="h-12 w-12 text-blue-600" />
+              </div>
+              <h3 className="text-blue-800 font-bold text-xl mb-3">
+                No UTC Cases Found
+              </h3>
+              <p className="text-blue-600 mb-6 leading-relaxed">
+                Create your first unit test case using the Add Unit Test Case button above!
+              </p>
+              <Button
+                onClick={() => router.push('/create-task')}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Case
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="rounded-md border">
             <Table>
