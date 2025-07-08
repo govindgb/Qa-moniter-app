@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { LoadingButton, Loader } from '@/components/ui/loader';
 
 export default function RegisterPage() {
-  const { register, loading, error, isAuthenticated } = useAuth();
+  const { register, loading, error, isAuthenticated , clearError } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
@@ -30,7 +30,10 @@ export default function RegisterPage() {
     if (isAuthenticated) {
       router.push('/dashboard');
     }
+
+  clearError();
   }, [isAuthenticated, router]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
