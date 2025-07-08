@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Select from "react-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,71 +35,40 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, Edit, Trash2, Tags as TagsIcon, RefreshCw } from "lucide-react";
-import axios from "axios";
 import { LoadingButton, Loader } from "@/components/ui/loader";
-
-interface Tag {
-  _id: string;
-  label: string;
-  tagType: string;
-  description?: string;
-  createdBy: {
-    name: string;
-    email: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-const TAG_TYPES = [
-  "Feature",
-  "Application",
-  "BuildVersion",
-  "Environment",
-  "Device",
-  "Sprints",
-];
+import { useTags, TAG_TYPES, Tag, TagFormData } from "@/context/TagsContext";
 
 export default function TagsPage() {
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    tags,
+    loading,
+    error,
+    submitLoading,
+    deleteLoading,
+    fetchTags,
+    createTag,
+    updateTag,
+    deleteTag,
+    clearError,
+    getTagTypeColor,
+    formatDate,
+  } = useTags();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  const [submitLoading, setSubmitLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TagFormData>({
     label: "",
-    tagType: [] as string[],
+    tagType: [],
     description: "",
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    fetchTags();
-  }, []);
-
-  const fetchTags = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.get("/api/tags?includeDetails=true");
-      if (response.data.success) {
-        setTags(response.data.data);
-      }
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to fetch tags");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       label: "",
-      tagType: [] as string[],
+      tagType: [],
       description: "",
     });
     setFormErrors({});
@@ -107,6 +76,7 @@ export default function TagsPage() {
   };
 
   const handleOpenDialog = (tag?: Tag) => {
+    clearError();
     if (tag) {
       setEditingTag(tag);
       setFormData({
@@ -148,64 +118,23 @@ export default function TagsPage() {
     }
 
     try {
-      setSubmitLoading(true);
-      setError(null);
-
-      const payload = {
-        label: formData.label.trim(),
-        tagType: formData.tagType,
-        description: formData.description.trim(),
-      };
-
       if (editingTag) {
-        await axios.put(`/api/tags/${editingTag._id}`, payload);
+        await updateTag(editingTag._id, formData);
       } else {
-        await axios.post("/api/tags", payload);
+        await createTag(formData);
       }
-
-      await fetchTags();
       handleCloseDialog();
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to save tag");
-    } finally {
-      setSubmitLoading(false);
+    } catch (error) {
+      // Error is handled by context
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      setDeleteLoading(id);
-      await axios.delete(`/api/tags/${id}`);
-      await fetchTags();
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to delete tag");
-    } finally {
-      setDeleteLoading(null);
+      await deleteTag(id);
+    } catch (error) {
+      // Error is handled by context
     }
-  };
-
-  const getTagTypeColor = (tagType: string) => {
-    const colors = {
-      Feature: "bg-blue-100 text-blue-800",
-      Application: "bg-green-100 text-green-800",
-      BuildVersion: "bg-purple-100 text-purple-800",
-      Environment: "bg-yellow-100 text-yellow-800",
-      Device: "bg-red-100 text-red-800",
-      Sprints: "bg-indigo-100 text-indigo-800",
-    };
-    return (
-      colors[tagType as keyof typeof colors] || "bg-gray-100 text-gray-800"
-    );
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   return (
@@ -395,9 +324,6 @@ export default function TagsPage() {
                     <TableHead className="font-bold text-gray-800">
                       Tag Type
                     </TableHead>
-                    {/* <TableHead className="font-bold text-gray-800">
-                      Features
-                    </TableHead> */}
                     <TableHead className="font-bold text-gray-800">
                       Updated At
                     </TableHead>
@@ -439,10 +365,6 @@ export default function TagsPage() {
                           )}
                         </div>
                       </TableCell>
-
-                      {/* <TableCell className="text-gray-600">
-                        {tag.description || "-"}
-                      </TableCell> */}
                       <TableCell className="text-gray-500 text-sm">
                         {formatDate(tag.createdAt)}
                       </TableCell>
