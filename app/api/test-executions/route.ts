@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import TestExecution from '@/models/QaMonitorTestExecutions';
+import QaMonitorExecutions from '@/models/QaMonitorExecutions';
 import Task from '@/models/QaMonitorTasks';
 
 // GET - Fetch all test executions with filters
 export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const { searchParams } = new URL(request.url);
     const tags = searchParams.get('tags');
     const status = searchParams.get('status');
     const label = searchParams.get('label');
     const latest = searchParams.get('latest');
-
     // Build aggregation pipeline
     const pipeline: any[] = [
       // Populate task information
       {
         $lookup: {
-          from: 'tasks',
+          from: 'qamonitortasks',
           localField: 'taskId',
           foreignField: '_id',
           as: 'taskId'
@@ -37,11 +36,10 @@ export async function GET(request: NextRequest) {
     if (status && status.trim() !== '' && ['pass', 'fail'].includes(status.toLowerCase())) {
       matchConditions.status = status.toLowerCase();
     }
-
     // Filter by unit test label
     if (label && label.trim() !== '') {
-      matchConditions['taskId.unitTestLabel'] = { 
-        $regex: new RegExp(label, 'i') 
+      matchConditions['taskId.unitTestLabel'] = {
+        $regex: new RegExp(label, 'i')
       };
     }
 
@@ -50,13 +48,13 @@ export async function GET(request: NextRequest) {
       try {
         const tagsArray = JSON.parse(tags);
         if (Array.isArray(tagsArray) && tagsArray.length > 0) {
-          matchConditions['taskId.tags'] = { 
+          matchConditions['taskId.tags'] = {
             $in: tagsArray.map(tag => new RegExp(tag, 'i'))
           };
         }
       } catch (error) {
         // If tags is not a valid JSON array, treat it as a single tag
-        matchConditions['taskId.tags'] = { 
+        matchConditions['taskId.tags'] = {
           $in: [new RegExp(tags, 'i')]
         };
       }
@@ -88,14 +86,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const testExecutions = await TestExecution.aggregate(pipeline);
-    
+    const testExecutions = await QaMonitorExecutions.aggregate(pipeline);
     return NextResponse.json({
       success: true,
       data: testExecutions,
     });
   } catch (error) {
-    console.error('Error fetching test executions:', error);
+    console.error('Error fetching test executfions:', error);
     return NextResponse.json(
       {
         success: false,
@@ -110,7 +107,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const body = await request.json();
     const { taskId, execId, status, feedback, attachedImages, testerName } = body;
 
@@ -151,7 +148,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new test execution
-    const testExecution = new TestExecution({
+    const testExecution = new QaMonitorExecutions({
       taskId,
       execId: execId.trim(),
       status: status ? status.toLowerCase() : 'fail',

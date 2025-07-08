@@ -30,7 +30,7 @@ const TagSchema: Schema = new Schema({
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'QaMonitorUsers',
     required: true,
   },
   isActive: {
@@ -42,4 +42,4 @@ const TagSchema: Schema = new Schema({
 });
 
 
-export default mongoose.models.Tag || mongoose.model<ITag>('Tag', TagSchema);
+export default mongoose.models.QaMonitorTags || mongoose.model<ITag>('QaMonitorTags', TagSchema);
