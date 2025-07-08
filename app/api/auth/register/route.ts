@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import User from '@/models/Users';
+import User from '@/models/QaMonitorUsers';
 import { generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
