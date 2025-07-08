@@ -1,34 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Bug, Rocket, Zap, Target } from 'lucide-react';
-import Link from 'next/link';
-import { LoadingButton, Loader } from '@/components/ui/loader';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Bug, Rocket, Zap, Target } from "lucide-react";
+import Link from "next/link";
+import { LoadingButton, Loader } from "@/components/ui/loader";
 
 export default function RegisterPage() {
-  const { register, loading, error, isAuthenticated , clearError } = useAuth();
+  const { register, loading, error, isAuthenticated,clearError } = useAuth();
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'tester',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "tester",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
 
   clearError();
@@ -37,36 +38,49 @@ export default function RegisterPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setFormError('');
+    setFormError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setFormError('Please fill in all fields');
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setFormError("Please fill in all fields");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setFormError('Passwords do not match');
+      setFormError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      setFormError('Password must be at least 6 characters long');
+      setFormError("Password must be at least 6 characters long");
       return;
     }
 
     try {
-      await register(formData.name, formData.email, formData.password, formData.role);
-      router.push('/dashboard');
+      setIsButtonLoading(true);
+      await register(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.role
+      );
+      router.push("/dashboard");
     } catch (error) {
-      // Error is handled by context
+      // error is handled by context
+    } finally {
+      setIsButtonLoading(false);
     }
   };
 
@@ -95,7 +109,8 @@ export default function RegisterPage() {
               Join the Future of Quality Assurance
             </h1>
             <p className="text-xl text-purple-100 leading-relaxed">
-              Create your account and start building better software with our advanced QA monitoring platform.
+              Create your account and start building better software with our
+              advanced QA monitoring platform.
             </p>
           </div>
 
@@ -106,27 +121,33 @@ export default function RegisterPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Quick Setup</h3>
-                <p className="text-purple-100">Get started in minutes with our intuitive onboarding process</p>
+                <p className="text-purple-100">
+                  Get started in minutes with our intuitive onboarding process
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Powerful Features</h3>
-                <p className="text-purple-100">Advanced test management and comprehensive reporting tools</p>
+                <p className="text-purple-100">
+                  Advanced test management and comprehensive reporting tools
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-start space-x-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
                 <Target className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Proven Results</h3>
-                <p className="text-purple-100">Reduce bugs by 60% and improve deployment confidence</p>
+                <p className="text-purple-100">
+                  Reduce bugs by 60% and improve deployment confidence
+                </p>
               </div>
             </div>
           </div>
@@ -160,15 +181,22 @@ export default function RegisterPage() {
             <CardHeader className="text-center pb-6 pt-8">
               <div className="flex items-center justify-center space-x-2 mb-6 lg:hidden">
                 <Bug className="h-8 w-8 text-indigo-600" />
-                <span className="text-2xl font-bold text-gray-900">QAMonitorTool</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  QAMonitorTool
+                </span>
               </div>
-              <CardTitle className="text-2xl font-bold text-gray-900">Create Account</CardTitle>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                Create Account
+              </CardTitle>
               <p className="text-gray-600 mt-2">Join our QA testing platform</p>
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <form onSubmit={handleSubmit} className="space-y-5">
                 {(error || formError) && (
-                  <Alert variant="destructive" className="border-red-200 bg-red-50">
+                  <Alert
+                    variant="destructive"
+                    className="border-red-200 bg-red-50"
+                  >
                     <AlertDescription className="text-red-800">
                       {error || formError}
                     </AlertDescription>
@@ -176,7 +204,10 @@ export default function RegisterPage() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-semibold text-gray-700"
+                  >
                     Full Name
                   </Label>
                   <Input
@@ -192,7 +223,10 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-semibold text-gray-700"
+                  >
                     Email Address
                   </Label>
                   <Input
@@ -208,14 +242,17 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-gray-700"
+                  >
                     Password
                   </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       name="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={handleInputChange}
                       placeholder="Enter your password"
@@ -227,20 +264,27 @@ export default function RegisterPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-semibold text-gray-700"
+                  >
                     Confirm Password
                   </Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
+                      type={showConfirmPassword ? "text" : "password"}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       placeholder="Confirm your password"
@@ -249,29 +293,62 @@ export default function RegisterPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full h-11 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                  disabled={isButtonLoading}
+                  className="w-full h-11 flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
                 >
-                  <LoadingButton loading={loading} loadingText="Creating Account...">
-                    Create Account
-                  </LoadingButton>
+                  {isButtonLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
+                      </svg>
+                      <span>Creating Account...</span>
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </Button>
               </form>
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <Link href="/login" className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors">
+                  Already have an account?{" "}
+                  <Link
+                    href="/login"
+                    className="text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
+                  >
                     Sign in here
                   </Link>
                 </p>
