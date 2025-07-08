@@ -63,6 +63,7 @@ interface AuthContextType extends AuthState {
   register: (name: string, email: string, password: string, role?: string) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -168,6 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout();
     }
   };
+    const clearError = () => {
+      dispatch({ type: 'SET_ERROR', payload: null });
+    };
 
   const contextValue: AuthContextType = {
     ...state,
@@ -175,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     checkAuth,
+    clearError,
   };
 
   return (
