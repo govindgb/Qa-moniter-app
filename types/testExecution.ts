@@ -19,7 +19,7 @@ export interface TestExecution {
     notes: string;
     _id: string;
   }[];
-  status: 'pass' | 'fail';
+  status: 'pass' | 'fail' | "";
   feedback: string;
   attachedImages: string[];
   testerName: string;
