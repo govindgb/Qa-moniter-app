@@ -68,6 +68,7 @@ export default function TestExecutionTable({
   } = useTestExecution();
   const { tasks, getTasks } = useTask();
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [expandedTagsRow, setExpandedTagsRow] = useState<number | null>(null);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -434,26 +435,31 @@ export default function TestExecutionTable({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {((execution as any).taskId?.tags || [])
-                          .slice(0, 3)
-                          .map((tag: string, tagIndex: number) => (
-                            <Badge
-                              key={tagIndex}
-                              variant="secondary"
-                              className="text-xs bg-blue-100 text-blue-800"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        {((execution as any).taskId?.tags || []).length > 3 && (
+                      <div className="flex flex-wrap gap-1 max-w-[300px]">
+                        {(expandedTagsRow === index
+                          ? (execution as any).taskId?.tags
+                          : (execution as any).taskId?.tags?.slice(0, 2)
+                        )?.map((tag: string, tagIndex: number) => (
                           <Badge
+                            key={tagIndex}
                             variant="secondary"
-                            className="text-xs bg-gray-100 text-gray-600"
+                            className="text-xs bg-blue-100 text-blue-800"
                           >
-                            +
-                            {((execution as any).taskId?.tags || []).length - 3}
+                            {tag}
                           </Badge>
+                        ))}
+
+                        {(execution as any).taskId?.tags?.length > 2 && (
+                          <button
+                            onClick={() =>
+                              setExpandedTagsRow(expandedTagsRow === index ? null : index)
+                            }
+                            className="text-xs text-gray-600 hover:underline ml-1"
+                          >
+                            {expandedTagsRow === index
+                              ? "Show Less"
+                              : `+${(execution as any).taskId?.tags.length - 2}`}
+                          </button>
                         )}
                       </div>
                     </TableCell>

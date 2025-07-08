@@ -36,6 +36,8 @@ interface TaskTableProps {
 export default function TaskTable({ onEditTask }: TaskTableProps) {
   const { tasks, loading, error, getTasks, deleteTask } = useTask();
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -125,7 +127,7 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                   <TableHead className="w-20">Case ID</TableHead>
                   <TableHead>Unit Test Label</TableHead>
                   <TableHead>Associated Tags</TableHead>
-                  <TableHead className="w-24">Test Cases</TableHead>
+                  {/* <TableHead className="w-24">Test Cases</TableHead> */}
                   <TableHead className="w-24">Created</TableHead>
                   <TableHead className="w-32 text-right">Actions</TableHead>
                 </TableRow>
@@ -143,8 +145,8 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1 max-w-[200px]">
-                        {task.tags.map((tag, tagIndex) => (
+                      <div className="flex flex-wrap gap-1 max-w-[300px]">
+                        {(expandedIndex === index ? task.tags : task.tags.slice(0, 3)).map((tag, tagIndex) => (
                           <Badge
                             key={tagIndex}
                             variant="secondary"
@@ -153,13 +155,28 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                             {tag}
                           </Badge>
                         ))}
+
+                        {task.tags.length > 3 && (
+                          <button
+                            onClick={() =>
+                              setExpandedIndex(expandedIndex === index ? null : index)
+                            }
+                            className="text-xs text-gray-600 hover:underline ml-1"
+                          >
+                            {expandedIndex === index
+                              ? 'Show Less'
+                              : `+${task.tags.length - 3}`}
+                          </button>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
+
+
+                    {/* <TableCell className="text-center">
                       <Badge variant="outline" className="text-xs">
                         {task.testCases.length}
                       </Badge>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-sm text-gray-500">
                       {task.createdAt && formatDate(task.createdAt.toString())}
                     </TableCell>
@@ -202,8 +219,8 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                                 onClick={() => task._id && handleDelete(task._id)}
                                 className="bg-red-600 hover:bg-red-700"
                               >
-                                <LoadingButton 
-                                  loading={deleteLoading === task._id} 
+                                <LoadingButton
+                                  loading={deleteLoading === task._id}
                                   loadingText="Deleting..."
                                 >
                                   Delete
