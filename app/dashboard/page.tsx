@@ -406,14 +406,14 @@ export default function DashboardPage() {
               </a>
 
               <a
-                href="/test-executions"
+                href="/test-executions/create"
                 className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="bg-green-100 p-2 rounded-lg">
                   <Activity className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium">Execute Test</h3>
+                  <h3 className="font-medium">Add New Executions</h3>
                   <p className="text-sm text-gray-500">Run tests on existing cases</p>
                 </div>
               </a>
