@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import Tag from '@/models/Tags';
+import Tag from '@/models/QaMonitorTags';
 import { getUserFromRequest } from '@/lib/auth';
  
 // Valid tag types

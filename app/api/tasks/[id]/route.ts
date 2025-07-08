@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import Task from '@/models/Tasks';
+import Task from '@/models/QaMonitorTasks';
 import mongoose from 'mongoose';
 
 // GET - Fetch task by ID
