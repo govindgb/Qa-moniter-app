@@ -45,4 +45,4 @@ const TaskSchema: Schema = new Schema({
   timestamps: true,
 });
 
-export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
+export default mongoose.models.QaMonitorTask || mongoose.model<ITask>('QaMonitorTask', TaskSchema);

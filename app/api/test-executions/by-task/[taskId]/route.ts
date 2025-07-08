@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import TestExecution from '@/models/QaMonitorTestExecutions';
+import TestExecution from '@/models/QaMonitorExecutions';
 import mongoose from 'mongoose';
 
 // GET - Fetch test executions by task ID

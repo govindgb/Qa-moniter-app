@@ -14,7 +14,7 @@ export interface ITestExecution extends Document {
 const TestExecutionSchema: Schema = new Schema({
   taskId: {
     type: Schema.Types.ObjectId,
-    ref: 'Task',
+    ref: 'QaMonitorTask',
     required: [true, 'Task ID is required'],
   },
   execId: {
@@ -49,4 +49,4 @@ const TestExecutionSchema: Schema = new Schema({
   timestamps: true,
 });
 
-export default mongoose.models.TestExecution || mongoose.model<ITestExecution>('TestExecution', TestExecutionSchema);
+export default mongoose.models.QaMonitorExecutions || mongoose.model<ITestExecution>('QaMonitorExecutions', TestExecutionSchema);
