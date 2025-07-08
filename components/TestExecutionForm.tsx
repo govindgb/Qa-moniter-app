@@ -18,6 +18,7 @@ import {
 import { TestExecution } from "@/types/testExecution";
 import { Task } from "@/types/task";
 import ImageUpload from "./ImageUpload";
+import MultiSelectTags from "./MultiSelectTags";
 import {
   Clock,
   CheckCircle,
@@ -25,8 +26,10 @@ import {
   AlertCircle,
   Hash,
   FileText,
+  Tags,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+
 interface TestExecutionFormProps {
   editTestExecution?: TestExecution | null;
   onSuccess?: () => void;
@@ -36,20 +39,28 @@ export default function TestExecutionForm({
   editTestExecution,
   onSuccess,
 }: TestExecutionFormProps) {
-  const { createTestExecution, updateTestExecution, loading, uploadImages } =
-    useTestExecution();
-  const { tasks, getTasks } = useTask();
+  const { createTestExecution, updateTestExecution, loading, uploadImages } = useTestExecution();
+  const { tasks, getTasks, updateTask } = useTask();
   const { user } = useAuth();
+  const router = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    taskId: string;
+    status: "pass" | "fail";
+    feedback: string;
+    attachedImages: string[];
+    tags: string[];
+  }>({
     taskId: "",
-    status: "" as "" | "pass" | "fail",
+    status: "pass", // Default value to satisfy the type
     feedback: "",
-    attachedImages: [] as string[],
+    attachedImages: [],
+    tags: [],
   });
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const router = useRouter();
+
   useEffect(() => {
     getTasks();
   }, []);
@@ -58,12 +69,16 @@ export default function TestExecutionForm({
     if (editTestExecution) {
       setFormData({
         taskId: editTestExecution.taskId?._id || "",
-        status: editTestExecution.status,
+        status: editTestExecution.status as "pass" | "fail",
         feedback: editTestExecution.feedback,
         attachedImages: editTestExecution.attachedImages || [],
+        tags: [], // This will be populated from the task below
       });
       const task = tasks.find((t:any) => t._id === editTestExecution.taskId);
-      if (task) setSelectedTask(task);
+      if (task) {
+        setSelectedTask(task);
+        setFormData((prev) => ({ ...prev, tags: task.tags || [] }));
+      }
     }
   }, [editTestExecution, tasks]);
 
@@ -86,18 +101,29 @@ export default function TestExecutionForm({
 
   const handleTaskSelect = (taskId: string) => {
     const task = tasks.find((t) => t._id === taskId);
-    if (task) setSelectedTask(task);
-    setFormData((prev) => ({ ...prev, taskId }));
+    if (task) {
+      setSelectedTask(task);
+      setFormData((prev) => ({
+        ...prev,
+        taskId,
+        tags: task.tags || [],
+      }));
+    }
     if (errors.taskId) setErrors((prev) => ({ ...prev, taskId: "" }));
   };
 
   const handleStatusChange = (status: "pass" | "fail") => {
-    setFormData((prev) => ({ ...prev, status }));
+    setFormData((prev:any) => ({ ...prev, status }));
     if (errors.status) setErrors((prev) => ({ ...prev, status: "" }));
   };
 
   const handleImagesChange = (images: string[]) => {
     setFormData((prev) => ({ ...prev, attachedImages: images }));
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    setFormData((prev) => ({ ...prev, tags }));
+    if (errors.tags) setErrors((prev) => ({ ...prev, tags: "" }));
   };
 
   const validateForm = () => {
@@ -132,18 +158,28 @@ export default function TestExecutionForm({
       if (editTestExecution?._id) {
         await updateTestExecution(editTestExecution._id, {
           ...payload,
-          status: formData.status === "pass" ? "pass" : "fail",
+          status: formData.status,
         });
       } else {
         await createTestExecution({
           ...payload,
-          status: formData.status === "pass" ? "pass" : "fail",
+          status: formData.status,
         });
       }
+
+      // Update tags in the task if changed
+      if (selectedTask && formData.tags.join(",") !== (selectedTask.tags || []).join(",")) {
+        await updateTask(selectedTask._id as string, {
+          ...selectedTask,
+          tags: formData.tags,
+        });
+      }
+
       if (!editTestExecution) {
-        setFormData({ taskId: "", status: "", feedback: "", attachedImages: [] });
+        setFormData({ taskId: "", status: "pass", feedback: "", attachedImages: [], tags: [] });
         setSelectedTask(null);
       }
+
       onSuccess?.();
       router.push("/test-executions");
     } catch (err) {
@@ -173,7 +209,6 @@ export default function TestExecutionForm({
       <CardContent className="p-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
             {/* Task Selector */}
             <div className="space-y-2">
               <Label htmlFor="taskId" className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
@@ -187,7 +222,7 @@ export default function TestExecutionForm({
                 <SelectContent>
                   {tasks.map((t:any) => (
                     <SelectItem key={t._id} value={t._id}>
-                      <span className="font-medium text-gray-900">{t.unitTestLabel}</span>
+                      {t.unitTestLabel}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -206,21 +241,8 @@ export default function TestExecutionForm({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="check" disabled>
-                    <span className="text-gray-500">Select status</span>
-                  </SelectItem>
-                  <SelectItem value="pass">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>Pass</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="fail">
-                    <div className="flex items-center space-x-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      <span>Fail</span>
-                    </div>
-                  </SelectItem>
+                  <SelectItem value="pass">✅ Pass</SelectItem>
+                  <SelectItem value="fail">❌ Fail</SelectItem>
                 </SelectContent>
               </Select>
               {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
@@ -245,18 +267,37 @@ export default function TestExecutionForm({
             {errors.feedback && <p className="text-sm text-red-500">{errors.feedback}</p>}
           </div>
 
+          {/* Tags */}
+         { formData.taskId && <div className="space-y-2">
+            <Label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+              <Tags className="h-4 w-4" />
+              <span>Tags (related to task)</span>
+            </Label>
+            <MultiSelectTags
+              selectedTags={formData.tags}
+              onTagsChange={handleTagsChange}
+              placeholder="Select or add tags for task..."
+              error={errors.tags}
+            />
+          </div>}
+
           {/* Image Upload */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold text-gray-700">Attach Images</Label>
-            <ImageUpload images={formData.attachedImages} onImagesChange={handleImagesChange} onUpload={uploadImages} />
+            <ImageUpload
+              images={formData.attachedImages}
+              onImagesChange={handleImagesChange}
+              onUpload={uploadImages}
+            />
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center justify-between pt-6 border-t">
-            <div className="text-sm text-gray-500">
-              {/* {editTestExecution ? "Update existing test execution" : "Create new test execution"} */}
-            </div>
-            <Button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+          <div className="flex items-center justify-end pt-6 border-t">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transform hover:scale-[1.02] transition-all duration-200"
+            >
               {loading ? (
                 <>
                   <Clock className="mr-2 h-4 w-4 animate-spin" />
