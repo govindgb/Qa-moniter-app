@@ -285,28 +285,33 @@ export default function LoginPage() {
               </div>
 
               <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                <p className="text-xs text-gray-700 mb-3 font-semibold">
-                  Demo Accounts:
+                <p className="text-sm text-gray-700 mb-4 font-semibold text-center">
+                  Teams that trust QAMonitorTool:
                 </p>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between items-center p-2 bg-white rounded border">
-                    <span className="font-medium text-gray-700">Admin</span>
-                    <span className="text-gray-600">
-                      admin@qa.com / password123
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-white rounded border">
-                    <span className="font-medium text-gray-700">Tester</span>
-                    <span className="text-gray-600">
-                      tester@qa.com / password123
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-white rounded border">
-                    <span className="font-medium text-gray-700">Manager</span>
-                    <span className="text-gray-600">
-                      manager@qa.com / password123
-                    </span>
-                  </div>
+                <div className="flex items-center justify-center space-x-5">
+                  <img
+                    src="/image1.png"
+                    alt="Team 1"
+                    className="h-14 w-14 rounded-full shadow-md"
+                  />
+                  <img
+                    src="/image2.png"
+                    alt="Team 2"
+                    className="h-14 w-14 rounded-full shadow-md"
+                  />
+                  <img
+                    src="/image3.png"
+                    alt="Team 3"
+                    className="h-14 w-14 rounded-full shadow-md"
+                  />
+                  <img
+                    src="/image4.png"
+                    alt="Team 4"
+                    className="h-14 w-14 rounded-full shadow-md"
+                  />
+                  <span className="text-sm text-gray-600 font-medium ml-2">
+                    + hundreds more
+                  </span>
                 </div>
               </div>
             </CardContent>
