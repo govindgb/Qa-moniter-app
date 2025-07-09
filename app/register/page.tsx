@@ -12,8 +12,17 @@ import { Eye, EyeOff, Bug, Rocket, Zap, Target } from "lucide-react";
 import Link from "next/link";
 import { LoadingButton, Loader } from "@/components/ui/loader";
 
+// Field-specific error interface
+interface FieldErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
+}
+
 export default function RegisterPage() {
-  const { register, loading, error, isAuthenticated,clearError } = useAuth();
+  const { register, loading, error, isAuthenticated, clearError } = useAuth();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -25,46 +34,133 @@ export default function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/dashboard");
     }
-
-  clearError();
+    clearError();
   }, [isAuthenticated, router]);
 
+  // Email validation function
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
+  // Password strength validation
+  const isValidPassword = (password: string): boolean => {
+    return password.length >= 6;
+  };
+
+  // Validate individual field
+  const validateField = (fieldName: string, value: string): string | null => {
+    switch (fieldName) {
+      case "name":
+        if (!value.trim()) {
+          return "Full name is required";
+        }
+        if (value.trim().length < 2) {
+          return "Name must be at least 2 characters long";
+        }
+        return null;
+
+      case "email":
+        if (!value.trim()) {
+          return "Email address is required";
+        }
+        if (!isValidEmail(value)) {
+          return "Please enter a valid email address";
+        }
+        return null;
+
+      case "password":
+        if (!value) {
+          return "Password is required";
+        }
+        if (!isValidPassword(value)) {
+          return "Password must be at least 6 characters long";
+        }
+        return null;
+
+      case "confirmPassword":
+        if (!value) {
+          return "Please confirm your password";
+        }
+        if (value !== formData.password) {
+          return "Passwords do not match";
+        }
+        return null;
+
+      default:
+        return null;
+    }
+  };
+
+  // Handle input change with real-time validation
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setFormError("");
+
+    // Clear field error when user starts typing
+    if (fieldErrors[name as keyof FieldErrors]) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
+
+    // Clear general error
+    if (fieldErrors.general) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        general: undefined,
+      }));
+    }
+  };
+
+  // Handle field blur validation
+  const handleFieldBlur = (fieldName: string, value: string) => {
+    const error = validateField(fieldName, value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      [fieldName]: error || undefined,
+    }));
+  };
+
+  // Validate all fields
+  const validateAllFields = (): boolean => {
+    const errors: FieldErrors = {};
+
+    // Validate name
+    const nameError = validateField("name", formData.name);
+    if (nameError) errors.name = nameError;
+
+    // Validate email
+    const emailError = validateField("email", formData.email);
+    if (emailError) errors.email = emailError;
+
+    // Validate password
+    const passwordError = validateField("password", formData.password);
+    if (passwordError) errors.password = passwordError;
+
+    // Validate confirm password
+    const confirmPasswordError = validateField("confirmPassword", formData.confirmPassword);
+    if (confirmPasswordError) errors.confirmPassword = confirmPasswordError;
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      setFormError("Please fill in all fields");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setFormError("Passwords do not match");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setFormError("Password must be at least 6 characters long");
+    // Validate all fields
+    if (!validateAllFields()) {
       return;
     }
 
@@ -78,11 +174,30 @@ export default function RegisterPage() {
       );
       router.push("/dashboard");
     } catch (error) {
-      // error is handled by context
+      // Handle server errors
+      setFieldErrors({
+        general: "Registration failed. Please try again.",
+      });
     } finally {
       setIsButtonLoading(false);
     }
   };
+
+  // Process auth context error to field-specific error
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error.toLowerCase();
+      if (errorMessage.includes("email")) {
+        setFieldErrors({ email: error });
+      } else if (errorMessage.includes("password")) {
+        setFieldErrors({ password: error });
+      } else if (errorMessage.includes("name")) {
+        setFieldErrors({ name: error });
+      } else {
+        setFieldErrors({ general: error });
+      }
+    }
+  }, [error]);
 
   if (loading) {
     return (
@@ -192,17 +307,16 @@ export default function RegisterPage() {
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <form onSubmit={handleSubmit} className="space-y-5">
-                {(error || formError) && (
-                  <Alert
-                    variant="destructive"
-                    className="border-red-200 bg-red-50"
-                  >
+                {/* General Error Alert */}
+                {fieldErrors.general && (
+                  <Alert variant="destructive" className="border-red-200 bg-red-50">
                     <AlertDescription className="text-red-800">
-                      {error || formError}
+                      {fieldErrors.general}
                     </AlertDescription>
                   </Alert>
                 )}
 
+                {/* Full Name Field */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="name"
@@ -216,12 +330,22 @@ export default function RegisterPage() {
                     type="text"
                     value={formData.name}
                     onChange={handleInputChange}
+                    onBlur={() => handleFieldBlur("name", formData.name)}
                     placeholder="Enter your full name"
-                    className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                    className={`h-11 transition-colors ${fieldErrors.name
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                      : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      }`}
                     required
                   />
+                  {fieldErrors.name && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {fieldErrors.name}
+                    </p>
+                  )}
                 </div>
 
+                {/* Email Field */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -235,12 +359,22 @@ export default function RegisterPage() {
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={() => handleFieldBlur("email", formData.email)}
                     placeholder="Enter your email"
-                    className="h-11 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                    className={`h-11 transition-colors ${fieldErrors.email
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                      : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      }`}
                     required
                   />
+                  {fieldErrors.email && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {fieldErrors.email}
+                    </p>
+                  )}
                 </div>
 
+                {/* Password Field */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="password"
@@ -255,8 +389,12 @@ export default function RegisterPage() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={handleInputChange}
+                      onBlur={() => handleFieldBlur("password", formData.password)}
                       placeholder="Enter your password"
-                      className="h-11 pr-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      className={`h-11 pr-12 transition-colors ${fieldErrors.password
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                        }`}
                       required
                     />
                     <button
@@ -271,8 +409,14 @@ export default function RegisterPage() {
                       )}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {fieldErrors.password}
+                    </p>
+                  )}
                 </div>
 
+                {/* Confirm Password Field */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="confirmPassword"
@@ -287,8 +431,12 @@ export default function RegisterPage() {
                       type={showConfirmPassword ? "text" : "password"}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
+                      onBlur={() => handleFieldBlur("confirmPassword", formData.confirmPassword)}
                       placeholder="Confirm your password"
-                      className="h-11 pr-12 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      className={`h-11 pr-12 transition-colors ${fieldErrors.confirmPassword
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                        : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                        }`}
                       required
                     />
                     <button
@@ -305,6 +453,11 @@ export default function RegisterPage() {
                       )}
                     </button>
                   </div>
+                  {fieldErrors.confirmPassword && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {fieldErrors.confirmPassword}
+                    </p>
+                  )}
                 </div>
 
                 <Button
