@@ -104,11 +104,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         throw new Error(response.data.error || 'Failed to create task');
       }
     } catch (error) {
-      const errorMessage = axios.isAxiosError(error) 
-        ? error.response?.data?.error || error.message 
-        : 'An unexpected error occurred';
+     const errorMessage = axios.isAxiosError(error)
+      ? error?.response?.data?.error || "Unexpected server error"
+      : "An unexpected error occurred";
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 

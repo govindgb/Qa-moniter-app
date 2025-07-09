@@ -18,7 +18,7 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
-  const { createTask, updateTask, loading } = useTask();
+  const { createTask, updateTask, loading, error } = useTask();
   
   const [formData, setFormData] = useState({
     unitTestLabel: '',
@@ -148,10 +148,10 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
               value={formData.unitTestLabel}
               onChange={handleInputChange}
               placeholder="Enter unique unit test label"
-              className={errors.unitTestLabel ? 'border-red-500' : ''}
+              className={(errors?.unitTestLabel || error) ? 'border-red-500' : ''}
             />
-            {errors.unitTestLabel && (
-              <p className="text-sm text-red-500">{errors.unitTestLabel}</p>
+            {(errors.unitTestLabel || error) && (
+              <p className="text-sm text-red-500">{errors.unitTestLabel || error}</p>
             )}
           </div>
 

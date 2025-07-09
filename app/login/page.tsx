@@ -21,7 +21,7 @@ import Link from "next/link";
 import { LoadingButton, Loader } from "@/components/ui/loader";
 
 export default function LoginPage() {
-  const { login, loading, error, isAuthenticated } = useAuth();
+  const { login, loading, error, isAuthenticated , clearError } = useAuth();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
 
   const router = useRouter();
@@ -36,6 +36,7 @@ export default function LoginPage() {
     if (isAuthenticated) {
       router.push("/dashboard");
     }
+    clearError();
   }, [isAuthenticated, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
