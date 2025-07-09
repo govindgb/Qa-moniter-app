@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Task } from '@/types/task';
 import MultiSelectTags from './MultiSelectTags';
 import { useRouter } from 'next/navigation';
 import { LoadingButton } from '@/components/ui/loader';
+import { FileText } from 'lucide-react';
 
 interface TaskFormProps {
   editTask?: Task | null;
@@ -19,7 +20,7 @@ interface TaskFormProps {
 
 export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
   const { createTask, updateTask, loading, error } = useTask();
-  
+
   const [formData, setFormData] = useState({
     unitTestLabel: '',
     tags: [] as string[],
@@ -29,7 +30,6 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Pre-populate form if editing
   useEffect(() => {
     if (editTask) {
       setFormData({
@@ -49,8 +49,6 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
       ...prev,
       [name]: value,
     }));
-    
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -64,8 +62,6 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
       ...prev,
       tags,
     }));
-
-    // Clear tags error
     if (errors.tags) {
       setErrors(prev => ({
         ...prev,
@@ -76,19 +72,9 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-
-    if (!formData.unitTestLabel.trim()) {
-      newErrors.unitTestLabel = 'Unit Test Label is required';
-    }
-
-    if (!formData.tags || formData.tags.length === 0) {
-      newErrors.tags = 'At least one tag is required';
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-
+    if (!formData.unitTestLabel.trim()) newErrors.unitTestLabel = 'Unit Test Label is required';
+    if (!formData.tags || formData.tags.length === 0) newErrors.tags = 'At least one tag is required';
+    if (!formData.description.trim()) newErrors.description = 'Description is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,25 +83,22 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (!validateForm()) {
-      return;
-    }
-  
+
+    if (!validateForm()) return;
+
     try {
       const taskData = {
         ...formData,
-        testCases: ['Default test case'], // Add default test case
+        testCases: ['Default test case'],
         attachedImages: [],
       };
-  
+
       if (editTask && editTask._id) {
         await updateTask(editTask._id, taskData);
       } else {
         await createTask(taskData);
       }
-  
-      // Reset form after successful creation (not editing)
+
       if (!editTask) {
         setFormData({
           unitTestLabel: '',
@@ -124,20 +107,22 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
           notes: '',
         });
       }
-  
-      // Trigger any external success handler
+
       onSuccess?.();
-  
-      // Redirect to unit case list
       router.push('/unit-case-list');
     } catch (error) {
       console.error('Error saving task:', error);
     }
   };
-  
 
   return (
-    <Card className="w-full">
+    <Card className="shadow-lg border-0">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+        <CardTitle className="flex items-center space-x-2 text-xl font-bold text-gray-900">
+          <FileText className="h-6 w-6 text-blue-600" />
+          <span>{editTask ? 'Edit UTC Case' : 'Create New UTC Case'}</span>
+        </CardTitle>
+      </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -193,18 +178,20 @@ export default function TaskForm({ editTask, onSuccess }: TaskFormProps) {
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            <LoadingButton 
-              loading={loading} 
-              loadingText={editTask ? 'Updating...' : 'Saving...'}
+          <div className="pt-4">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6"
             >
-              {editTask ? 'Update Task' : 'Save Task'}
-            </LoadingButton>
-          </Button>
+              <LoadingButton
+                loading={loading}
+                loadingText={editTask ? 'Updating...' : 'Saving...'}
+              >
+                {editTask ? 'Update Task' : 'Save Task'}
+              </LoadingButton>
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
