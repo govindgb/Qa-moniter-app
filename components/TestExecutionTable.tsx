@@ -165,13 +165,15 @@ export default function TestExecutionTable({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pass":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-100 text-green-800 border border-green-200 hover:bg-green-200 hover:text-green-900";
       case "fail":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-red-100 text-red-800 border border-red-200 hover:bg-red-200 hover:text-red-900";
       default:
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200 hover:text-gray-900";
     }
   };
+  
+  
 
   if (loading && testExecutions.length === 0) {
     return (
