@@ -1,10 +1,10 @@
 source .env
-
+ 
 build(){
     echo "Building image...."
-    docker build --platform=linux/amd64 . -t ${IMAGE_NAME}:latest
+    docker build . -t ${IMAGE_NAME}:latest
 }
-
+ 
 if [ "$1" == "-build" ]
 then
     if docker images -a | grep -q ${IMAGE_NAME}
@@ -21,8 +21,8 @@ then
     then 
         echo "Container already running!"
     else
-        docker-compose --env-file docker.env -f docker-compose.yml up -d
-        # docker logs -f ${IMAGE_NAME}-container
+        docker-compose -f docker-compose.yml up -d
+        ##docker logs -f ${IMAGE_NAME}-container
     fi
 elif [ "$1" == "-down" ]
 then
