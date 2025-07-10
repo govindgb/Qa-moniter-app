@@ -2,7 +2,7 @@ source .env
 
 build(){
     echo "Building image...."
-    docker build . -t ${IMAGE_NAME}:latest
+    docker build --platform=linux/amd64 . -t ${IMAGE_NAME}:latest
 }
 
 if [ "$1" == "-build" ]
@@ -21,8 +21,8 @@ then
     then 
         echo "Container already running!"
     else
-        docker-compose up -d
-        docker logs -f ${IMAGE_NAME}-container
+        docker-compose --env-file docker.env -f docker-compose.yml up -d
+        # docker logs -f ${IMAGE_NAME}-container
     fi
 elif [ "$1" == "-down" ]
 then
@@ -39,12 +39,12 @@ elif [ "$1" == "-push" ]
 then
     if docker images -a | grep -q ${IMAGE_NAME}
     then
-        echo "Taging Image..."
-        docker tag ${IMAGE_NAME}:latest ${DOCKER_CONTAINER_NAME}/${IMAGE_NAME}:${TAG} #Use ${AWS_ECR_URL} from ${DOCKER_CONTAINER_NAME} to switch to Docker Private Registry
-        echo "Pushing Image to DOCKER HUB..."
-        docker push ${DOCKER_CONTAINER_NAME}/${IMAGE_NAME}:${TAG} #Use ${AWS_ECR_URL} from ${DOCKER_CONTAINER_NAME} to switch to Docker Private Registry
-        echo "Image successfully published to docker cloud registry."
-        docker image rm ${DOCKER_CONTAINER_NAME}/${IMAGE_NAME}:${TAG} #Use ${AWS_ECR_URL} from ${DOCKER_CONTAINER_NAME} to switch to Docker Private Registry
-        #echo "Cleanup: removed local container with tag ${TAG}"
+        echo "Taging for AWS ECR..."
+        docker tag ${IMAGE_NAME}:latest ${AWS_ECR_URL}/${IMAGE_NAME}:${ECR_TAG}
+        echo "Pushing container to AWS ECR..."
+        docker push ${AWS_ECR_URL}/${IMAGE_NAME}:${ECR_TAG}
+        echo "Container successfully published to AWS ECR!"
+        docker image rm ${AWS_ECR_URL}/${IMAGE_NAME}:${ECR_TAG}
+        echo "Cleanup: removed local container with tag ${ECR_TAG}"
     fi
 fi
