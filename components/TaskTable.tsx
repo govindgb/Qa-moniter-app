@@ -140,9 +140,9 @@ export default function TaskTable({ onEditTask }: TaskTableProps) {
                     </TableCell>
                     <TableCell className="font-medium text-blue-700">
                       {task.unitTestLabel}
-                      {task.notes && (
+                      {/* {task.notes && (
                         <p className="text-xs text-gray-500 mt-1">{task.notes}</p>
-                      )}
+                      )} */}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-[300px]">
