@@ -52,7 +52,7 @@ export default function TestExecutionForm({
     tags: string[];
   }>({
     taskId: "",
-    status: "pass", // Default value to satisfy the type
+    status: "pass",
     feedback: "",
     attachedImages: [],
     tags: [],
@@ -67,18 +67,15 @@ export default function TestExecutionForm({
 
   useEffect(() => {
     if (editTestExecution) {
+      const task = tasks.find((t: any) => t._id === editTestExecution.taskId);
       setFormData({
-        taskId: editTestExecution.taskId?._id || "",
+        taskId: task?._id || "",
         status: editTestExecution.status as "pass" | "fail",
         feedback: editTestExecution.feedback,
         attachedImages: editTestExecution.attachedImages || [],
-        tags: [], // This will be populated from the task below
+        tags: task?.tags || [],
       });
-      const task = tasks.find((t:any) => t._id === editTestExecution.taskId);
-      if (task) {
-        setSelectedTask(task);
-        setFormData((prev) => ({ ...prev, tags: task.tags || [] }));
-      }
+      setSelectedTask(task || null);
     }
   }, [editTestExecution, tasks]);
 
@@ -268,18 +265,20 @@ export default function TestExecutionForm({
           </div>
 
           {/* Tags */}
-         { formData.taskId && <div className="space-y-2">
-            <Label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
-              <Tags className="h-4 w-4" />
-              <span>Tags (related to task)</span>
-            </Label>
-            <MultiSelectTags
-              selectedTags={formData.tags}
-              onTagsChange={handleTagsChange}
-              placeholder="Select or add tags for task..."
-              error={errors.tags}
-            />
-          </div>}
+          {formData.taskId && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                <Tags className="h-4 w-4" />
+                <span>Tags (related to task)</span>
+              </Label>
+              <MultiSelectTags
+                selectedTags={formData.tags}
+                onTagsChange={handleTagsChange}
+                placeholder="Searchfor test label..."
+                error={errors.tags}
+              />
+            </div>
+          )}
 
           {/* Image Upload */}
           <div className="space-y-2">
