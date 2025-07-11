@@ -6,32 +6,42 @@ import QaMonitorExecutions from '@/models/QaMonitorExecutions';
 
 export async function GET() {
   try {
-    
     await connectToDatabase();
 
-    // Get all tasks
-    const tasks = await Task.find({}).sort({ createdAt: -1 }).lean();
+    // Get all tasks (fetch only _id, unitTestLabel, tags)
+    const tasks = await Task.find({}, '_id unitTestLabel tags').sort({ createdAt: -1 }).lean();
 
-    // Get the latest test execution for each task
+    // Get the latest execution per taskId
     const latestExecutions = await QaMonitorExecutions.aggregate([
       { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: '$taskId',
-          latestExecution: { $first: '$$ROOT' },
+          latestExecution: {
+            $first: {
+              status: '$status', // only select 'status'
+              taskId: '$taskId',
+              testerName: '$testerName'
+            }
+          },
         },
       },
     ]);
 
-    // Map taskId => latest execution
+    // Map: taskId => { status }
     const executionMap = new Map();
     latestExecutions.forEach(({ latestExecution }) => {
-      executionMap.set(latestExecution.taskId.toString(), latestExecution);
+      executionMap.set(latestExecution.taskId.toString(), {
+        status: latestExecution.status,
+        testerName: latestExecution.testerName || 'N/A'  // ✅ Fallback if testerName is missing
+      });
     });
 
-    // Merge task with execution
+    // Construct the response with only required fields
     const dashboardData = tasks.map(task => ({
-      ...task,
+      _id: task._id,
+      unitTestLabel: task.unitTestLabel,
+      tags: task.tags,
       latestExecution: executionMap.get(task._id?.toString()) || null,
     }));
 
