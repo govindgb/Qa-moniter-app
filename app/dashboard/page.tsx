@@ -1,36 +1,30 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useTask } from '@/context/TaskContext';
-import { useTestExecution } from '@/context/TestExecutionContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import {
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
+} from "@/components/ui/select";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import {
   CheckCircle,
-  AlertCircle,
   XCircle,
   Users,
   Target,
   Activity,
   Filter,
-} from 'lucide-react';
+} from "lucide-react";
 
-// Loading skeleton component
+// ✅ Removed useTask and useTestExecution
+// import { useTask } from '@/context/TaskContext';
+// import { useTestExecution } from '@/context/TestExecutionContext';
+
 const StatCardSkeleton = () => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -46,10 +40,12 @@ const StatCardSkeleton = () => (
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { tasks, getTasks } = useTask();
-  const { testExecutions, getTestExecutions } = useTestExecution();
+
+  // ✅ New local state for dashboard API response
+  const [dashboardData, setDashboardData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState<string>('all');
+  const [selectedTag, setSelectedTag] = useState<string>("all");
+
   const [stats, setStats] = useState({
     totalTasks: 0,
     totalExecutions: 0,
@@ -57,32 +53,38 @@ export default function DashboardPage() {
     failedExecutions: 0,
   });
 
+  // ✅ Fetch data from dashboard API
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    const fetchDashboardData = async () => {
       try {
-        await Promise.all([getTasks(), getTestExecutions()]);
-      } catch (error) {
-        console.error('Error loading data:', error);
+        setLoading(true);
+        const res = await fetch("/api/dashboard");
+        const result = await res.json();
+
+        if (result.success) {
+          setDashboardData(result.data);
+          calculateStats(result.data);
+        } else {
+          console.error(result.error);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
       } finally {
         setLoading(false);
       }
     };
-    loadData();
+
+    fetchDashboardData();
   }, []);
 
-  useEffect(() => {
-    if (tasks.length > 0 || testExecutions.length > 0) {
-      calculateStats();
-    }
-  }, [tasks, testExecutions]);
+  // ✅ Calculate stats from combined dashboard data
+  const calculateStats = (data: any[]) => {
+    const totalTasks = data.length;
+    const totalExecutions = data.filter((d) => d.latestExecution).length;
 
-  const calculateStats = () => {
-    const totalTasks = tasks.length;
-    const totalExecutions = testExecutions.length;
-    
-    const statusCounts = testExecutions.reduce((acc, execution) => {
-      acc[execution.status] = (acc[execution.status] || 0) + 1;
+    const statusCounts = data.reduce((acc, item) => {
+      const status = item.latestExecution?.status;
+      if (status) acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -94,60 +96,53 @@ export default function DashboardPage() {
     });
   };
 
-  // Get unique tags from test executions
+  // ✅ Unique tags for dropdown
   const getUniqueTags = () => {
-    const allTags = testExecutions.flatMap(execution =>
-      execution.taskId?.tags || []
-    );
-  
-    const uniqueTagsSet = new Set(allTags);
-    const uniqueTagsArray: string[] = [];
-  
-    uniqueTagsSet.forEach(tag => {
-      uniqueTagsArray.push(tag);
-    });
-  
-    return uniqueTagsArray;
+    const tags = dashboardData.flatMap((item) => item.tags || []);
+    return Array.from(new Set(tags));
   };
-  
 
-  // Filter test executions by selected tag
+  // ✅ Filter test executions based on tag
   const getFilteredTestExecutions = () => {
-    if (selectedTag === 'all') {
-      return testExecutions;
-    }
-    return testExecutions.filter(execution => 
-      execution.taskId?.tags?.includes(selectedTag)
-    );
+    const filtered = dashboardData.filter((item) => {
+      if (!item.latestExecution) return false;
+      if (selectedTag === "all") return true;
+      return item.tags?.includes(selectedTag);
+    });
+    return filtered;
   };
 
-  // Get status data for pie chart based on selected tag
   const getStatusDataForTag = () => {
-    const filteredExecutions = getFilteredTestExecutions();
-    
-    const statusCounts = filteredExecutions.reduce((acc, execution) => {
-      acc[execution.status] = (acc[execution.status] || 0) + 1;
+    const filtered = getFilteredTestExecutions();
+    const statusCounts = filtered.reduce((acc, item) => {
+      const status = item.latestExecution?.status;
+      if (status) acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     return [
-      { name: 'Pass', value: statusCounts.pass || 0, color: '#10B981' },
-      { name: 'Fail', value: statusCounts.fail || 0, color: '#EF4444' },
+      { name: "Pass", value: statusCounts.pass || 0, color: "#10B981" },
+      { name: "Fail", value: statusCounts.fail || 0, color: "#EF4444" },
     ];
   };
 
   const statusData = getStatusDataForTag();
   const uniqueTags = getUniqueTags();
 
-  const recentExecutions = testExecutions
-    .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+  const recentExecutions = dashboardData
+    .filter((item) => item.latestExecution)
+    .sort(
+      (a, b) =>
+        new Date(b.latestExecution.createdAt).getTime() -
+        new Date(a.latestExecution.createdAt).getTime()
+    )
     .slice(0, 5);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pass':
+      case "pass":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'fail':
+      case "fail":
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
         return <XCircle className="h-4 w-4 text-red-600" />;
@@ -156,12 +151,12 @@ export default function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pass':
-        return 'bg-green-100 text-green-800';
-      case 'fail':
-        return 'bg-red-100 text-red-800';
+      case "pass":
+        return "bg-green-100 text-green-800";
+      case "fail":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-red-100 text-red-800';
+        return "bg-red-100 text-red-800";
     }
   };
 
@@ -190,7 +185,9 @@ export default function DashboardPage() {
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total UTC Cases</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total UTC Cases
+                </CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -203,24 +200,30 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Test Executions</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Test Executions
+                </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalExecutions}</div>
-                <p className="text-xs text-muted-foreground">
-                  Total test runs
-                </p>
+                <div className="text-2xl font-bold">
+                  {stats.totalExecutions}
+                </div>
+                <p className="text-xs text-muted-foreground">Total test runs</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Passed Tests</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Passed Tests
+                </CardTitle>
                 <CheckCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.passedExecutions}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {stats.passedExecutions}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Successfully passed
                 </p>
@@ -229,14 +232,16 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Failed Tests</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Failed Tests
+                </CardTitle>
                 <XCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{stats.failedExecutions}</div>
-                <p className="text-xs text-muted-foreground">
-                  Tests failed
-                </p>
+                <div className="text-2xl font-bold text-red-600">
+                  {stats.failedExecutions}
+                </div>
+                <p className="text-xs text-muted-foreground">Tests failed</p>
               </CardContent>
             </Card>
           </>
@@ -267,9 +272,10 @@ export default function DashboardPage() {
                 </Select>
               </div>
             </div>
-            {selectedTag !== 'all' && (
+            {selectedTag !== "all" && (
               <p className="text-sm text-muted-foreground">
-                Showing results for tag: <Badge variant="outline">{selectedTag}</Badge>
+                Showing results for tag:{" "}
+                <Badge variant="outline">{selectedTag}</Badge>
               </p>
             )}
           </CardHeader>
@@ -281,7 +287,7 @@ export default function DashboardPage() {
             ) : statusData.every((entry) => entry.value === 0) ? (
               <div className="h-[300px] flex items-center justify-center text-gray-500 text-sm">
                 No test status data available
-                {selectedTag !== 'all' && (
+                {selectedTag !== "all" && (
                   <div className="text-center">
                     <p>for tag "{selectedTag}"</p>
                   </div>
@@ -291,17 +297,19 @@ export default function DashboardPage() {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={statusData.filter(entry => entry.value > 0)}
+                    data={statusData.filter((entry) => entry.value > 0)}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
                     {statusData
-                      .filter(entry => entry.value > 0)
+                      .filter((entry) => entry.value > 0)
                       .map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -323,7 +331,10 @@ export default function DashboardPage() {
               {loading ? (
                 <div className="space-y-3">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4 p-3 border rounded-lg">
+                    <div
+                      key={i}
+                      className="flex items-center space-x-4 p-3 border rounded-lg"
+                    >
                       <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse"></div>
                       <div className="flex-1 space-y-2">
                         <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
@@ -341,27 +352,43 @@ export default function DashboardPage() {
                   No recent test executions
                 </p>
               ) : (
-                recentExecutions.map((execution) => (
-                  <div key={execution._id} className="flex items-center space-x-4 p-3 border rounded-lg">
-                    {getStatusIcon(execution.status)}
+                recentExecutions.map((task) => (
+                  <div
+                    key={task._id}
+                    className="flex items-center space-x-4 p-3 border rounded-lg"
+                  >
+                    {/* ✅ Status Icon */}
+                    {getStatusIcon(task.latestExecution.status)}
+
+                    {/* ✅ Middle Column */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {execution.taskId?.unitTestLabel || 'N/A'}
+                        {task.unitTestLabel || "N/A"}
                       </p>
                       <p className="text-sm text-gray-500">
-                        By {execution.testerName}
+                        By {task.latestExecution?.testerName || "N/A"}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {execution.taskId?.tags?.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                        {task.tags?.map((tag: any, index: any) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     </div>
+
+                    {/* ✅ Right Status Label */}
                     <div className="text-right">
-                      <Badge className={`text-xs ${getStatusColor(execution.status)}`}>
-                        {execution.status.toUpperCase()}
+                      <Badge
+                        className={`text-xs ${getStatusColor(
+                          task.latestExecution.status
+                        )}`}
+                      >
+                        {task.latestExecution.status?.toUpperCase() ?? "N/A"}
                       </Badge>
                     </div>
                   </div>
@@ -381,7 +408,10 @@ export default function DashboardPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center space-x-3 p-4 border rounded-lg">
+                <div
+                  key={i}
+                  className="flex items-center space-x-3 p-4 border rounded-lg"
+                >
                   <div className="h-9 w-9 bg-gray-200 rounded-lg animate-pulse"></div>
                   <div className="space-y-2">
                     <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
@@ -401,7 +431,9 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-medium">Create UTC Case</h3>
-                  <p className="text-sm text-gray-500">Add a new unit test case</p>
+                  <p className="text-sm text-gray-500">
+                    Add a new unit test case
+                  </p>
                 </div>
               </a>
 
@@ -414,7 +446,9 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-medium">Add New Executions</h3>
-                  <p className="text-sm text-gray-500">Run tests on existing cases</p>
+                  <p className="text-sm text-gray-500">
+                    Run tests on existing cases
+                  </p>
                 </div>
               </a>
 
@@ -427,7 +461,9 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-medium">View Reports</h3>
-                  <p className="text-sm text-gray-500">Check execution reports</p>
+                  <p className="text-sm text-gray-500">
+                    Check execution reports
+                  </p>
                 </div>
               </a>
             </div>
