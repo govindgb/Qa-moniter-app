@@ -9,10 +9,12 @@ export async function GET() {
     await connectToDatabase();
 
     // Get all tasks (fetch only _id, unitTestLabel, tags)
-    const tasks = await Task.find({}, '_id unitTestLabel tags').sort({ createdAt: -1 }).lean();
+    const tasks = await Task.find({}, '_id unitTestLabel tags').sort({ createdAt: -1 }).limit(6).lean();
 
     // Get the latest execution per taskId
+    const taskIds = tasks.map(task => task._id);
     const latestExecutions = await QaMonitorExecutions.aggregate([
+      { $match: { taskId: { $in: taskIds } } }, // Only get executions for these tasks
       { $sort: { createdAt: -1 } },
       {
         $group: {
