@@ -31,6 +31,10 @@ const initialState: AuthState = {
   isAuthenticated: false,
 };
 
+const updateUser = (newUserData: Partial<User>) => {
+  dispatch({ type: 'UPDATE_USER', payload: newUserData });
+};
+
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'SET_LOADING':
@@ -64,6 +68,7 @@ interface AuthContextType extends AuthState {
   logout: () => void;
   checkAuth: () => Promise<void>;
   clearError: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -180,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     checkAuth,
     clearError,
+    updateUser,
   };
 
   return (
@@ -195,4 +201,8 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+}
+
+function dispatch(arg0: { type: string; payload: Partial<User>; }) {
+  throw new Error('Function not implemented.');
 }
