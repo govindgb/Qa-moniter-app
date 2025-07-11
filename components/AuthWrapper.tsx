@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { Loader } from '@/components/ui/loader';
 
-const publicRoutes = ['/login', '/register'];
+const publicRoutes = ['/login', '/register','/forgot-password','/reset-password'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -19,6 +19,16 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
         <Loader size="lg" text="Loading..." />
       </div>
     );
+  }
+  if (!isAuthenticated && !isPublicRoute) {
+    // Redirect to login will be handled by the login page
+    window.location.href = '/forgot-password';
+    return null;
+  }
+  if (!isAuthenticated && !isPublicRoute) {
+    // Redirect to login will be handled by the login page
+    window.location.href = '/reset-password';
+    return null;
   }
 
   if (!isAuthenticated && !isPublicRoute) {
