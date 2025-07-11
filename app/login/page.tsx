@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -19,11 +19,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { LoadingButton, Loader } from "@/components/ui/loader";
-
+ 
 export default function LoginPage() {
   const { login, loading, error, isAuthenticated , clearError } = useAuth();
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-
+ 
   const router = useRouter();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const successMessage = searchParams.get('message');
@@ -34,14 +34,14 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
-
+ 
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/dashboard");
     }
     clearError();
   }, [isAuthenticated, router]);
-
+ 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -50,15 +50,15 @@ export default function LoginPage() {
     }));
     setFormError("");
   };
-
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+ 
     if (!formData.email || !formData.password) {
       setFormError("Please fill in all fields");
       return;
     }
-
+ 
     try {
       setIsButtonLoading(true);
       await login(formData.email, formData.password); // your context login
@@ -69,7 +69,7 @@ export default function LoginPage() {
       setIsButtonLoading(false);
     }
   };
-
+ 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
@@ -77,7 +77,7 @@ export default function LoginPage() {
       </div>
     );
   }
-
+ 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding & Features */}
@@ -99,7 +99,7 @@ export default function LoginPage() {
               monitoring platform designed for modern development teams.
             </p>
           </div>
-
+ 
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 </p>
               </div>
             </div>
-
+ 
             <div className="flex items-start space-x-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
                 <BarChart3 className="h-6 w-6 text-white" />
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 </p>
               </div>
             </div>
-
+ 
             <div className="flex items-start space-x-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
                 <Users className="h-6 w-6 text-white" />
@@ -137,7 +137,7 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
-
+ 
           <div className="mt-12 p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
             <div className="flex items-center space-x-2 mb-3">
               <CheckCircle className="h-5 w-5 text-green-300" />
@@ -152,13 +152,13 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-
+ 
         {/* Decorative Elements */}
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
         <div className="absolute bottom-20 left-20 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
         <div className="absolute top-1/2 right-10 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
       </div>
-
+ 
       {/* Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-gray-50">
         <div className="w-full max-w-md">
@@ -197,7 +197,7 @@ export default function LoginPage() {
                     </AlertDescription>
                   </Alert>
                 )}
-
+ 
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -216,7 +216,7 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-
+ 
                 <div className="space-y-2">
                   <Label
                     htmlFor="password"
@@ -248,7 +248,7 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
-
+ 
                 <Button
                   type="submit"
                   disabled={isButtonLoading}
@@ -283,7 +283,7 @@ export default function LoginPage() {
                   )}
                 </Button>
               </form>
-
+ 
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-600">
                   Don't have an account?{" "}
@@ -297,14 +297,14 @@ export default function LoginPage() {
                 <p className="text-sm text-gray-600 mt-2">
                   Forgot your password?{" "}
                   <Link
-                    href="/tags"
+                href="/forgot-password"
                     className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
                   >
                     Reset Password
                   </Link>
                 </p>
               </div>
-
+ 
               <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                 <p className="text-sm text-gray-700 mb-4 font-semibold text-center">
                   Teams that trust QAMonitorTool:
@@ -342,3 +342,5 @@ export default function LoginPage() {
     </div>
   );
 }
+ 
+ 
