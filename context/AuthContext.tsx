@@ -22,7 +22,9 @@ type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_USER'; payload: User | null }
-  | { type: 'LOGOUT' };
+  | { type: 'LOGOUT' }
+  | { type: 'UPDATE_USER'; payload: Partial<User> };
+
 
 const initialState: AuthState = {
   user: null,
@@ -31,9 +33,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
 };
 
-const updateUser = (newUserData: Partial<User>) => {
-  dispatch({ type: 'UPDATE_USER', payload: newUserData });
-};
+
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -41,6 +41,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
+      case 'UPDATE_USER':
+        return {
+          ...state,
+          user: state.user ? { ...state.user, ...action.payload } : null,
+        };
     case 'SET_USER':
       return {
         ...state,
@@ -57,6 +62,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         loading: false,
         error: null,
       };
+      
+
     default:
       return state;
   }
@@ -75,6 +82,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+
+  const updateUser = (newUserData: Partial<User>) => {
+    dispatch({ type: 'UPDATE_USER', payload: newUserData });
+  };
+  
 
   // Set up axios interceptor for auth token
   useEffect(() => {
@@ -203,6 +215,4 @@ export function useAuth() {
   return context;
 }
 
-function dispatch(arg0: { type: string; payload: Partial<User>; }) {
-  throw new Error('Function not implemented.');
-}
+
