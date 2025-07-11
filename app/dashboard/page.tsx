@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useDashboard } from "@/context/DashboardContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,10 +22,6 @@ import {
   Filter,
 } from "lucide-react";
 
-// ✅ Removed useTask and useTestExecution
-// import { useTask } from '@/context/TaskContext';
-// import { useTestExecution } from '@/context/TestExecutionContext';
-
 const StatCardSkeleton = () => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -40,105 +37,31 @@ const StatCardSkeleton = () => (
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const {
+    data: dashboardData,
+    stats,
+    loading,
+    error,
+    getFilteredTestExecutions,
+    getStatusDataForTag,
+    getUniqueTags,
+  } = useDashboard();
 
-  // ✅ New local state for dashboard API response
-  const [dashboardData, setDashboardData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState<string>("all");
+  const [selectedTag, setSelectedTag] = React.useState<string>("all");
 
-  const [stats, setStats] = useState({
-    totalTasks: 0,
-    totalExecutions: 0,
-    passedExecutions: 0,
-    failedExecutions: 0,
-  });
-
-  // ✅ Fetch data from dashboard API
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/dashboard");
-        const result = await res.json();
-
-        if (result.success) {
-          setDashboardData(result.data);
-          calculateStats(result.data);
-        } else {
-          console.error(result.error);
-        }
-      } catch (err) {
-        console.error("Failed to fetch dashboard data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
-
-  // ✅ Calculate stats from combined dashboard data
-  const calculateStats = (data: any[]) => {
-    const totalTasks = data.length;
-    const totalExecutions = data.filter((d) => d.latestExecution).length;
-
-    const statusCounts = data.reduce((acc, item) => {
-      const status = item.latestExecution?.status;
-      if (status) acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    setStats({
-      totalTasks,
-      totalExecutions,
-      passedExecutions: statusCounts.pass || 0,
-      failedExecutions: statusCounts.fail || 0,
-    });
-  };
-
-  // ✅ Unique tags for dropdown
-  const getUniqueTags = () => {
-    const tags = dashboardData.flatMap((item) => item.tags || []);
-    return Array.from(new Set(tags));
-  };
-
-  // ✅ Filter test executions based on tag
-  const getFilteredTestExecutions = () => {
-    const filtered = dashboardData.filter((item) => {
-      if (!item.latestExecution) return false;
-      if (selectedTag === "all") return true;
-      return item.tags?.includes(selectedTag);
-    });
-    return filtered;
-  };
-
-  const getStatusDataForTag = () => {
-    const filtered = getFilteredTestExecutions();
-    const statusCounts = filtered.reduce((acc, item) => {
-      const status = item.latestExecution?.status;
-      if (status) acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return [
-      { name: "Pass", value: statusCounts.pass || 0, color: "#10B981" },
-      { name: "Fail", value: statusCounts.fail || 0, color: "#EF4444" },
-    ];
-  };
-
-  const statusData = getStatusDataForTag();
   const uniqueTags = getUniqueTags();
+  const statusData = getStatusDataForTag(selectedTag);
 
   const recentExecutions = dashboardData
     .filter((item) => item.latestExecution)
     .sort(
-      (a, b) =>
+      (a:any, b:any) =>
         new Date(b.latestExecution.createdAt).getTime() -
         new Date(a.latestExecution.createdAt).getTime()
     )
     .slice(0, 5);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | undefined) => {
     switch (status) {
       case "pass":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
@@ -149,7 +72,7 @@ export default function DashboardPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | undefined) => {
     switch (status) {
       case "pass":
         return "bg-green-100 text-green-800";
@@ -357,10 +280,10 @@ export default function DashboardPage() {
                     key={task._id}
                     className="flex items-center space-x-4 p-3 border rounded-lg"
                   >
-                    {/* ✅ Status Icon */}
-                    {getStatusIcon(task.latestExecution.status)}
+                    {/* Status Icon */}
+                    {getStatusIcon(task?.latestExecution?.status)}
 
-                    {/* ✅ Middle Column */}
+                    {/* Middle Column */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {task.unitTestLabel || "N/A"}
@@ -381,14 +304,14 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    {/* ✅ Right Status Label */}
+                    {/* Right Status Label */}
                     <div className="text-right">
                       <Badge
                         className={`text-xs ${getStatusColor(
-                          task.latestExecution.status
+                          task.latestExecution?.status
                         )}`}
                       >
-                        {task.latestExecution.status?.toUpperCase() ?? "N/A"}
+                        {task.latestExecution?.status?.toUpperCase() ?? "N/A"}
                       </Badge>
                     </div>
                   </div>
