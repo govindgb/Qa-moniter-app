@@ -19,6 +19,7 @@ import { TestExecution } from "@/types/testExecution";
 import { Task } from "@/types/task";
 import ImageUpload from "./ImageUpload";
 import MultiSelectTags from "./MultiSelectTags";
+import SearchableSelect, { SearchableSelectProps } from "./SearchableSelect";
 import {
   Clock,
   CheckCircle,
@@ -195,6 +196,17 @@ export default function TestExecutionForm({
     }
   };
 
+  // Prepare options for SearchableSelect
+  const taskOptions: { value: string; label: string }[] = tasks.map((task: any) => ({
+    value: task._id,
+    label: task.unitTestLabel,
+  }));
+
+  const statusOptions: { value: "pass" | "fail"; label: string }[] = [
+    { value: "pass", label: "✅ Pass" },
+    { value: "fail", label: "❌ Fail" },
+  ];
+
   return (
     <Card className="w-full shadow-lg border-0 bg-white">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
@@ -212,18 +224,15 @@ export default function TestExecutionForm({
                 <Hash className="h-4 w-4" />
                 <span>Select Unit Test Label</span>
               </Label>
-              <Select value={formData.taskId} onValueChange={handleTaskSelect} disabled={!!editTestExecution}>
-                <SelectTrigger className={`h-12 ${errors.taskId ? "border-red-500" : "border-gray-300"} focus:border-blue-500 focus:ring-blue-500`}>
-                  <SelectValue placeholder="Select a unit test label" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tasks.map((t:any) => (
-                    <SelectItem key={t._id} value={t._id}>
-                      {t.unitTestLabel}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={formData.taskId}
+                onChange={handleTaskSelect}
+                options={taskOptions}
+                placeholder="Select a unit test label"
+                disabled={!!editTestExecution}
+                error={!!errors.taskId}
+                className="w-full"
+              />
               {errors.taskId && <p className="text-sm text-red-500">{errors.taskId}</p>}
             </div>
 
@@ -233,15 +242,14 @@ export default function TestExecutionForm({
                 {getStatusIcon(formData.status)}
                 <span>Status</span>
               </Label>
-              <Select value={formData.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className={`h-12 ${errors.status ? "border-red-500" : "border-gray-300"} focus:border-blue-500 focus:ring-blue-500`}>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pass">✅ Pass</SelectItem>
-                  <SelectItem value="fail">❌ Fail</SelectItem>
-                </SelectContent>
-              </Select>
+              <SearchableSelect<"pass" | "fail">
+                value={formData.status}
+                onChange={handleStatusChange}
+                options={statusOptions}
+                placeholder="Select status"
+                error={!!errors.status}
+                className="w-full"
+              />
               {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
             </div>
           </div>
@@ -274,7 +282,7 @@ export default function TestExecutionForm({
               <MultiSelectTags
                 selectedTags={formData.tags}
                 onTagsChange={handleTagsChange}
-                placeholder="Searchfor test label..."
+                placeholder="Search for test label..."
                 error={errors.tags}
               />
             </div>
