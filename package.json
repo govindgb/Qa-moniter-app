@@ -41,6 +41,7 @@
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
+    "antd": "^5.26.4",
     "autoprefixer": "10.4.15",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
