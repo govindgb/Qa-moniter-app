@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { Loader } from '@/components/ui/loader';
 
-const publicRoutes = ['/login', '/register','/forgot-password','/reset-password'];
+const publicRoutes = ['/login', '/register','/reset-password','/forgot-password'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -20,20 +20,17 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
       </div>
     );
   }
+ 
+
   if (!isAuthenticated && !isPublicRoute) {
     // Redirect to login will be handled by the login page
-    window.location.href = '/forgot-password';
-    return null;
-  }
-  if (!isAuthenticated && !isPublicRoute) {
-    // Redirect to login will be handled by the login page
-    window.location.href = '/reset-password';
+    window.location.href = '/login';
     return null;
   }
 
   if (!isAuthenticated && !isPublicRoute) {
     // Redirect to login will be handled by the login page
-    window.location.href = '/login';
+    window.location.href = '/reset-password';
     return null;
   }
 
@@ -42,6 +39,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     window.location.href = '/dashboard';
     return null;
   }
+   if (!isAuthenticated && !isPublicRoute) {
+    // Redirect to login will be handled by the login page
+    window.location.href = '/forgot-password';
+    return null;
+  }
+
 
   if (isPublicRoute) {
     return <>{children}</>;
