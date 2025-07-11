@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'; //its tells that the api route is dynamic not static
+export const dynamic = 'force-dynamic'; //it tells that the api route is dynamic not static
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/QaMonitorUsers';
