@@ -30,18 +30,14 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   }
   if (!isAuthenticated && !isPublicRoute) {
     // Redirect to login will be handled by the login page
-    window.location.href = '/reset-password';
->>>>>>> Stashed changes
+    window.location.href = '/forgot-password';
+
     return null;
   }
 
   if (!isAuthenticated && !isPublicRoute) {
     // Redirect to login will be handled by the login page
-<<<<<<< Updated upstream
     window.location.href = '/reset-password';
-=======
-    window.location.href = '/forgot-password';
->>>>>>> Stashed changes
     return null;
   }
 
@@ -50,17 +46,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     window.location.href = '/dashboard';
     return null;
   }
-<<<<<<< Updated upstream
-   if (!isAuthenticated && !isPublicRoute) {
-    // Redirect to login will be handled by the login page
-    window.location.href = '/forgot-password';
-    return null;
-  }
-
-
-=======
- 
->>>>>>> Stashed changes
   if (isPublicRoute) {
     return <>{children}</>;
   }
