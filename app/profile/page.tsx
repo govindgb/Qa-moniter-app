@@ -84,7 +84,7 @@ export default function ProfilePage() {
                     )}
 
                     <div className="space-y-1">
-                        <Label htmlFor="name">🙍‍♀️ Name</Label>
+                        <Label htmlFor="name">🙍Name</Label>
                         <Input
                             id="name"
                             placeholder="Your full name"
@@ -95,7 +95,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="password">🔐 New Password</Label>
+                        <Label htmlFor="password">New Password</Label>
                         <Input
                             id="password"
                             type="password"
