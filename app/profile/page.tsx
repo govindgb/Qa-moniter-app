@@ -9,9 +9,9 @@ import { Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function ProfilePage() {
-    const { updateUser } = useAuth();
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
+    const { updateUser, user } = useAuth(); // assuming user object has name and email
+    const [name, setName] = useState(user?.name || '');
+    const [email, setEmail] = useState(user?.email || '');
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function ProfilePage() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ name, password }),
+                body: JSON.stringify({ name, email }),
             });
 
             const contentType = res.headers.get('content-type') || '';
@@ -47,8 +47,12 @@ export default function ProfilePage() {
             }
 
             setSuccess(data.message);
-            setPassword('');
-            updateUser({ name: data.user.name });
+            updateUser({
+                name: data.user.name, email: data.user.email,
+                _id: '',
+                role: 'admin',
+                isActive: false
+            });
 
         } catch (err: any) {
             console.error('Update error:', err);
@@ -85,9 +89,10 @@ export default function ProfilePage() {
 
                     <div className="space-y-1">
                         <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">Full Name</Label>
                         <Input
                             id="name"
-                            placeholder="Your full name"
+                            placeholder="Enter your full name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="rounded-md h-10 text-base"
@@ -96,12 +101,13 @@ export default function ProfilePage() {
 
                     <div className="space-y-1">
                         <Label htmlFor="password">New Password</Label>
+                        <Label htmlFor="email">Email Address</Label>
                         <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Leave empty to keep current password"
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="rounded-md h-10 text-base"
                         />
                     </div>
@@ -120,7 +126,6 @@ export default function ProfilePage() {
                             <span>Update Profile</span>
                         )}
                     </Button>
-
 
                     <div className="text-center pt-2 text-sm text-muted-foreground">
                         Want to go back? <a href="/dashboard" className="text-blue-600 hover:underline">Go to Dashboard</a>
