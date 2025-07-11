@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { TestExecutionProvider } from '@/context/TestExecutionContext';
 import { TagsProvider } from '@/context/TagsContext';
+import { DashboardProvider } from '@/context/DashboardContext';
 import AuthWrapper from '@/components/AuthWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -26,9 +27,11 @@ export default function RootLayout({
           <TaskProvider>
             <TestExecutionProvider>
               <TagsProvider>
-                <AuthWrapper>
-                  {children}
-                </AuthWrapper>
+                <DashboardProvider>
+                  <AuthWrapper>
+                    {children}
+                  </AuthWrapper>
+                </DashboardProvider>
               </TagsProvider>
             </TestExecutionProvider>
           </TaskProvider>
