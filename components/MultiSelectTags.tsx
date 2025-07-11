@@ -64,23 +64,27 @@ export default function MultiSelectTags({
 
   const handleCustomTagAdd = async () => {
     const trimmedValue = searchValue.trim();
-    if (
-      trimmedValue &&
-      !availableTags.includes(trimmedValue)
-    ) {
-      setLoading(true);
-      try {
-        await axios.post('/api/tags', { tag: trimmedValue });
-        setAvailableTags(prev => [...prev, trimmedValue]);
-        onTagsChange([...selectedTags, trimmedValue]);
-        setSearchValue('');
-      } catch (error) {
-        console.error('Error adding tag:', error);
-      } finally {
-        setLoading(false);
-      }
-    } else if (trimmedValue && availableTags.includes(trimmedValue)) {
+    if (!trimmedValue) return;
+
+    const alreadyExists = availableTags.some(
+      (tag) => tag.toLowerCase() === trimmedValue.toLowerCase()
+    );
+
+    if (alreadyExists) {
       handleTagSelect(trimmedValue);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post("/api/tags", { tag: trimmedValue });
+      setAvailableTags((prev) => [...prev, trimmedValue]);
+      onTagsChange([...selectedTags, trimmedValue]);
+      setSearchValue("");
+    } catch (error) {
+      console.error("Error adding tag:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,17 +118,12 @@ export default function MultiSelectTags({
                   >
                     <span className="truncate">{tag}</span>
                     <button
-                      className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleTagRemove(tag);
-                        }
-                      }}
-                      onMouseDown={(e) => {
+                      className="ml-1"
+                      onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        handleTagRemove(tag);
                       }}
-                      onClick={() => handleTagRemove(tag)}
                     >
                       <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                     </button>
@@ -148,24 +147,30 @@ export default function MultiSelectTags({
               onKeyDown={handleKeyDown}
               className="h-9"
             />
-            {searchValue && !availableTags.some(tag => tag?.toLowerCase() === searchValue.toLowerCase()) && (
-              <Button
-                variant="ghost"
-                className="w-full justify-start mt-2 h-9"
-                onClick={handleCustomTagAdd}
-                disabled={loading}
-              >
-                <LoadingButton loading={loading} loadingText="Adding...">
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Add &quot;{searchValue}&quot;</span>
-                </LoadingButton>
-              </Button>
-            )}
+            {searchValue &&
+              !availableTags.some(
+                (tag) => tag.toLowerCase() === searchValue.trim().toLowerCase()
+              ) && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start mt-2 h-9"
+                  onClick={handleCustomTagAdd}
+                  disabled={loading}
+                >
+                  <LoadingButton loading={loading} loadingText="Adding...">
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span className="text-sm">
+                      Add &quot;{searchValue}&quot;
+                    </span>
+                  </LoadingButton>
+                </Button>
+              )}
           </div>
+
           <ScrollArea className="max-h-60 overflow-y-auto">
             {filteredTags.length === 0 && !searchValue ? (
               <div className="p-3 text-sm text-muted-foreground text-center">
-                No more tags available
+                No tags found
               </div>
             ) : (
               <div className="p-1">
