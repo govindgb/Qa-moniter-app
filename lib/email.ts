@@ -22,9 +22,11 @@ class EmailService {
   private isConfigured: boolean = false;
 
   constructor() {
+    console.log('🔧 Initializing EmailService...');
     try {
       this.transporter = this.createTransporter();
       this.isConfigured = true;
+      console.log('✅ EmailService initialized successfully');
     } catch (error) {
       console.error('Failed to initialize email service:', error);
       this.isConfigured = false;
@@ -34,48 +36,70 @@ class EmailService {
   private createTransporter(): nodemailer.Transporter {
     console.log('🔧 Initializing email transporter...');
     
+    // Clean and validate environment variables
+    const smtpHost = process.env.SMTP_HOST?.trim();
+    const smtpPort = parseInt(process.env.SMTP_PORT?.trim() || '587');
+    const smtpSecure = process.env.SMTP_SECURE?.trim() === 'true';
+    const smtpUser = process.env.SMTP_USER?.trim();
+    const smtpPass = process.env.SMTP_PASS?.trim().replace(/['"]/g, ''); // Remove quotes
+    
+    console.log('📧 Raw environment variables:', {
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_SECURE: process.env.SMTP_SECURE,
+      SMTP_USER: process.env.SMTP_USER,
+      SMTP_PASS_LENGTH: process.env.SMTP_PASS?.length,
+      SMTP_PASS_HAS_QUOTES: process.env.SMTP_PASS?.includes('"') || process.env.SMTP_PASS?.includes("'"),
+    });
+    
     const emailConfig: EmailConfig = {
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+      host: smtpHost || 'smtp.gmail.com',
+      port: smtpPort,
+      secure: smtpSecure,
       auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
+        user: smtpUser || '',
+        pass: smtpPass || '',
       },
     };
 
-    console.log('📧 Email config:', {
+    console.log('📧 Cleaned email config:', {
       host: emailConfig.host,
       port: emailConfig.port,
       secure: emailConfig.secure,
       user: emailConfig.auth.user,
-      passLength: emailConfig.auth.pass.length,
+      passLength: emailConfig.auth.pass?.length,
+      passPreview: emailConfig.auth.pass ? `${emailConfig.auth.pass.substring(0, 4)}****` : 'MISSING',
     });
 
     // Validate required environment variables
     if (!emailConfig.auth.user || !emailConfig.auth.pass) {
-      throw new Error('SMTP credentials are not configured. Please set SMTP_USER and SMTP_PASS environment variables.');
+      const missingVars = [];
+      if (!emailConfig.auth.user) missingVars.push('SMTP_USER');
+      if (!emailConfig.auth.pass) missingVars.push('SMTP_PASS');
+      throw new Error(`SMTP credentials are missing: ${missingVars.join(', ')}. Please check your .env file.`);
     }
 
+    console.log('🔑 Creating nodemailer transporter...');
     const transporter = nodemailer.createTransporter(emailConfig);
     
     // Add event listeners for debugging
     transporter.on('token', token => {
       console.log('🔑 A new access token was generated');
       console.log('User: %s', token.user);
-      console.log('Access Token: %s', token.accessToken);
     });
 
     transporter.on('idle', () => {
       console.log('📬 Connection is idle');
     });
 
+    console.log('✅ Transporter created successfully');
     return transporter;
   }
 
   async sendEmail(options: SendEmailOptions): Promise<void> {
     if (!this.isConfigured) {
-      throw new Error('Email service is not properly configured');
+      console.error('❌ Email service is not configured properly');
+      throw new Error('Email service is not properly configured. Check your SMTP settings in .env file.');
     }
 
     try {
@@ -86,8 +110,11 @@ class EmailService {
       await this.transporter.verify();
       console.log('✅ SMTP connection verified successfully');
       
+      const fromEmail = process.env.SMTP_FROM?.trim() || process.env.SMTP_USER?.trim();
+      const appName = process.env.APP_NAME?.trim() || 'QAMonitorTool';
+      
       const mailOptions = {
-        from: `"${process.env.APP_NAME || 'QAMonitorTool'}" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        from: `"${appName}" <${fromEmail}>`,
         to: options.to,
         subject: options.subject,
         html: options.html,
@@ -119,14 +146,18 @@ class EmailService {
       
       if (error instanceof Error) {
         // Provide more specific error messages
-        if (error.message.includes('Invalid login')) {
+        if (error.message.includes('Invalid login') || error.message.includes('Username and Password not accepted')) {
           throw new Error('Invalid SMTP credentials. Please check your email and app password.');
+        } else if (error.message.includes('Application-specific password required')) {
+          throw new Error('Gmail requires an App Password. Please generate one in your Google Account settings.');
         } else if (error.message.includes('Connection timeout')) {
           throw new Error('SMTP connection timeout. Please check your network connection.');
         } else if (error.message.includes('ENOTFOUND')) {
           throw new Error('SMTP server not found. Please check your SMTP host configuration.');
         } else if (error.message.includes('ECONNREFUSED')) {
           throw new Error('Connection refused by SMTP server. Please check your port and security settings.');
+        } else if (error.message.includes('self signed certificate')) {
+          throw new Error('SSL certificate issue. Try setting SMTP_SECURE=false for port 587.');
         }
       }
       

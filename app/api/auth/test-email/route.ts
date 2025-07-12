@@ -75,6 +75,8 @@ export async function GET() {
       SMTP_SECURE: process.env.SMTP_SECURE || 'false',
       SMTP_FROM: process.env.SMTP_FROM || process.env.SMTP_USER,
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      SMTP_PASS_HAS_QUOTES: process.env.SMTP_PASS?.includes('"') || process.env.SMTP_PASS?.includes("'"),
+      SMTP_PASS_LENGTH: process.env.SMTP_PASS?.length,
     };
 
     console.log('📋 Environment variables status:', envStatus);
