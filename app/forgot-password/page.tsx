@@ -93,7 +93,15 @@ export default function ForgotPasswordPage() {
                     <p>• Check your spam/junk folder if you don't see the email</p>
                     <p>• The reset link is valid for 1 hour only</p>
                     <p>• You can request a new reset link if needed</p>
+                    <p>• If you still don't receive the email, contact support</p>
                   </div>
+                </div>
+
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-xs text-yellow-800">
+                    <strong>Still not receiving emails?</strong> Check your spam folder, 
+                    ensure the email address is correct, or try again in a few minutes.
+                  </p>
                 </div>
 
                 <div className="text-center">
