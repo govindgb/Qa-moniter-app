@@ -18,7 +18,7 @@ interface SendEmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter!: nodemailer.Transporter;
   private isConfigured: boolean = false;
 
   constructor() {
