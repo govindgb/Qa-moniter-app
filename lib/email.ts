@@ -19,12 +19,21 @@ interface SendEmailOptions {
 
 class EmailService {
   private transporter: nodemailer.Transporter;
+  private isConfigured: boolean = false;
 
   constructor() {
-    this.transporter = this.createTransporter();
+    try {
+      this.transporter = this.createTransporter();
+      this.isConfigured = true;
+    } catch (error) {
+      console.error('Failed to initialize email service:', error);
+      this.isConfigured = false;
+    }
   }
 
   private createTransporter(): nodemailer.Transporter {
+    console.log('🔧 Initializing email transporter...');
+    
     const emailConfig: EmailConfig = {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -35,16 +44,48 @@ class EmailService {
       },
     };
 
+    console.log('📧 Email config:', {
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.secure,
+      user: emailConfig.auth.user,
+      passLength: emailConfig.auth.pass.length,
+    });
+
     // Validate required environment variables
     if (!emailConfig.auth.user || !emailConfig.auth.pass) {
       throw new Error('SMTP credentials are not configured. Please set SMTP_USER and SMTP_PASS environment variables.');
     }
 
-    return nodemailer.createTransporter(emailConfig);
+    const transporter = nodemailer.createTransporter(emailConfig);
+    
+    // Add event listeners for debugging
+    transporter.on('token', token => {
+      console.log('🔑 A new access token was generated');
+      console.log('User: %s', token.user);
+      console.log('Access Token: %s', token.accessToken);
+    });
+
+    transporter.on('idle', () => {
+      console.log('📬 Connection is idle');
+    });
+
+    return transporter;
   }
 
   async sendEmail(options: SendEmailOptions): Promise<void> {
+    if (!this.isConfigured) {
+      throw new Error('Email service is not properly configured');
+    }
+
     try {
+      console.log('📤 Attempting to send email to:', options.to);
+      
+      // Verify connection before sending
+      console.log('🔍 Verifying SMTP connection...');
+      await this.transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+      
       const mailOptions = {
         from: `"${process.env.APP_NAME || 'QAMonitorTool'}" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
         to: options.to,
@@ -53,26 +94,65 @@ class EmailService {
         text: options.text,
       };
 
+      console.log('📧 Mail options:', {
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        hasHtml: !!mailOptions.html,
+        hasText: !!mailOptions.text,
+      });
+
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('Email sent successfully:', info.messageId);
+      console.log('✅ Email sent successfully!');
+      console.log('📨 Message ID:', info.messageId);
+      console.log('📬 Response:', info.response);
+      console.log('📋 Accepted:', info.accepted);
+      console.log('❌ Rejected:', info.rejected);
+      console.log('⏳ Pending:', info.pending);
+      
+      if (info.rejected && info.rejected.length > 0) {
+        throw new Error(`Email was rejected for: ${info.rejected.join(', ')}`);
+      }
+      
     } catch (error) {
-      console.error('Error sending email:', error);
-      throw new Error('Failed to send email. Please try again later.');
+      console.error('❌ Error sending email:', error);
+      
+      if (error instanceof Error) {
+        // Provide more specific error messages
+        if (error.message.includes('Invalid login')) {
+          throw new Error('Invalid SMTP credentials. Please check your email and app password.');
+        } else if (error.message.includes('Connection timeout')) {
+          throw new Error('SMTP connection timeout. Please check your network connection.');
+        } else if (error.message.includes('ENOTFOUND')) {
+          throw new Error('SMTP server not found. Please check your SMTP host configuration.');
+        } else if (error.message.includes('ECONNREFUSED')) {
+          throw new Error('Connection refused by SMTP server. Please check your port and security settings.');
+        }
+      }
+      
+      throw new Error(`Failed to send email: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   async sendPasswordResetEmail(email: string, resetToken: string, userName: string): Promise<void> {
+    console.log('🔄 Preparing password reset email for:', email);
+    
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    console.log('🔗 Reset URL generated:', resetUrl);
     
     const html = this.generatePasswordResetEmailTemplate(userName, resetUrl);
     const text = this.generatePasswordResetEmailText(userName, resetUrl);
 
+    console.log('📝 Email template generated, sending...');
+    
     await this.sendEmail({
       to: email,
       subject: 'Reset Your Password - QAMonitorTool',
       html,
       text,
     });
+    
+    console.log('🎉 Password reset email sent successfully!');
   }
 
   private generatePasswordResetEmailTemplate(userName: string, resetUrl: string): string {
