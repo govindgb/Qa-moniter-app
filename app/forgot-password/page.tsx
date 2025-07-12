@@ -23,7 +23,6 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [resetToken, setResetToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +40,6 @@ export default function ForgotPasswordPage() {
 
       if (response.data.success) {
         setSuccess(true);
-        setResetToken(response.data.resetToken);
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || "Failed to send reset instructions";
@@ -51,19 +49,6 @@ export default function ForgotPasswordPage() {
     }
   };
 
-  const handleProceedToReset = () => {
-    if (!resetToken) {
-      setError("No reset token available. Please try again.");
-      return;
-    }
-
-    sessionStorage.setItem('resetToken', resetToken);
-
-    // Delay to allow sessionStorage to complete
-    setTimeout(() => {
-      router.push('/reset-password');
-    }, 50);
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-6 py-12">
@@ -91,25 +76,38 @@ export default function ForgotPasswordPage() {
                 <Alert className="border-green-200 bg-green-50">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
-                    Password reset request processed successfully. You can now proceed to reset your password.
+                    Password reset instructions have been sent to your email address. Please check your inbox and follow the instructions to reset your password.
                   </AlertDescription>
                 </Alert>
 
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
                     <AlertCircle className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">Next Step</span>
+                    <span className="text-sm font-medium text-blue-800">Check Your Email</span>
                   </div>
-                  <p className="text-xs text-blue-700 mb-3">
-                    Click the button below to proceed with resetting your password.
+                  <p className="text-xs text-blue-700 mb-4">
+                    We've sent a secure reset link to <strong>{email}</strong>. 
+                    The link will expire in 1 hour for security reasons.
                   </p>
+                  <div className="text-xs text-blue-600">
+                    <p>• Check your spam/junk folder if you don't see the email</p>
+                    <p>• The reset link is valid for 1 hour only</p>
+                    <p>• You can request a new reset link if needed</p>
+                  </div>
+                </div>
+
+                <div className="text-center">
                   <Button
                     type="button"
-                    onClick={handleProceedToReset}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={!resetToken}
+                    onClick={() => {
+                      setSuccess(false);
+                      setEmail("");
+                      setError("");
+                    }}
+                    variant="outline"
+                    className="mr-3"
                   >
-                    Reset My Password
+                    Send Another Email
                   </Button>
                 </div>
 

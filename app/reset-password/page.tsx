@@ -41,8 +41,12 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Get reset token from session storage
-    const token = sessionStorage.getItem('resetToken');
+    // Get reset token from URL parameters or session storage
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    const tokenFromSession = sessionStorage.getItem('resetToken');
+    
+    const token = tokenFromUrl || tokenFromSession;
     
     if (!token) {
       // Redirect to forgot password if no token found
@@ -51,6 +55,11 @@ export default function ResetPasswordPage() {
     }
     
     setResetToken(token);
+    
+    // Clear session storage if token came from URL
+    if (tokenFromUrl) {
+      sessionStorage.removeItem('resetToken');
+    }
   }, [router]);
 
   // Password strength validation
