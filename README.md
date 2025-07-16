@@ -1,5 +1,48 @@
 # Qa-moniter-app
 
+## Google OAuth Setup
+
+To enable Google authentication, you need to set up Google OAuth credentials:
+
+### 1. Create Google OAuth Credentials
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" in the left sidebar
+5. Click "Create Credentials" → "OAuth 2.0 Client IDs"
+6. Configure the OAuth consent screen if prompted
+7. Set the application type to "Web application"
+8. Add authorized redirect URIs:
+   - For development: `http://localhost:3000/api/auth/callback/google`
+   - For production: `https://yourdomain.com/api/auth/callback/google`
+
+### 2. Configure Environment Variables
+
+Add the following to your `.env` file:
+
+```env
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_here
+```
+
+### 3. Generate NextAuth Secret
+
+You can generate a secure secret using:
+```bash
+openssl rand -base64 32
+```
+
+### 4. Features
+
+- **Seamless Integration**: Users can sign in with their Google account
+- **Automatic User Creation**: New users are automatically created with default "tester" role
+- **Existing User Linking**: Existing users can link their Google account
+- **Session Management**: Integrated with NextAuth for secure session handling
+- **Fallback Authentication**: Traditional email/password login still available
+
 ## Email Configuration for Password Reset
 
 To enable email functionality for password reset, you need to configure SMTP settings in your environment variables.

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { signIn as nextAuthSignIn, signOut as nextAuthSignOut, useSession } from 'next-auth/react';
 
 interface User {
   _id: string;
@@ -72,6 +73,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role?: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
   clearError: () => void;
@@ -82,6 +84,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const { data: session, status } = useSession();
 
   const updateUser = (newUserData: Partial<User>) => {
     dispatch({ type: 'UPDATE_USER', payload: newUserData });
@@ -113,8 +116,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check authentication on mount
   useEffect(() => {
-    checkAuth();
-  }, []);
+    if (status === 'loading') return; // Still loading
+    
+    if (session?.user) {
+      // User is authenticated via NextAuth
+      const user: User = {
+        _id: session.user.id || '',
+        name: session.user.name || '',
+        email: session.user.email || '',
+        role: (session.user as any).role || 'tester',
+        isActive: (session.user as any).isActive !== false,
+      };
+      dispatch({ type: 'SET_USER', payload: user });
+    } else {
+      // Check for JWT token authentication
+      checkAuth();
+    }
+  }, [session, status]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -160,7 +178,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      await nextAuthSignIn('google', { callbackUrl: '/dashboard' });
+    } catch (error: any) {
+      const errorMessage = error.message || 'Google login failed';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    }
+  };
+
   const logout = () => {
+    // Sign out from NextAuth if session exists
+    if (session) {
+      nextAuthSignOut({ callbackUrl: '/login' });
+    }
+    
+    // Clear JWT token
     localStorage.removeItem('auth-token');
     delete axios.defaults.headers.common['Authorization'];
     dispatch({ type: 'LOGOUT' });
@@ -194,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ...state,
     login,
     register,
+    loginWithGoogle,
     logout,
     checkAuth,
     clearError,

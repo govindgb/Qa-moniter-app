@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password: string;
   role: 'admin' | 'tester' | 'manager';
   isActive: boolean;
+  googleId?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -41,6 +42,11 @@ const UserSchema: Schema = new Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true,
   },
 }, {
   timestamps: true,

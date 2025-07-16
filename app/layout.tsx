@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { SessionProvider } from 'next-auth/react';
 import { AuthProvider } from '@/context/AuthContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { TestExecutionProvider } from '@/context/TestExecutionContext';
@@ -23,19 +24,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <TaskProvider>
-            <TestExecutionProvider>
-              <TagsProvider>
-                <DashboardProvider>
-                  <AuthWrapper>
-                    {children}
-                  </AuthWrapper>
-                </DashboardProvider>
-              </TagsProvider>
-            </TestExecutionProvider>
-          </TaskProvider>
-        </AuthProvider>
+        <SessionProvider>
+          <AuthProvider>
+            <TaskProvider>
+              <TestExecutionProvider>
+                <TagsProvider>
+                  <DashboardProvider>
+                    <AuthWrapper>
+                      {children}
+                    </AuthWrapper>
+                  </DashboardProvider>
+                </TagsProvider>
+              </TestExecutionProvider>
+            </TaskProvider>
+          </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { LoadingButton, Loader } from "@/components/ui/loader";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
  
 export default function LoginPage() {
   const { login, loading, error, isAuthenticated , clearError } = useAuth();
@@ -284,6 +285,21 @@ export default function LoginPage() {
                 </Button>
               </form>
  
+              {/* Divider */}
+              <div className="mt-6 mb-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google Sign In */}
+              <GoogleSignInButton />
+
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-600">
                   Don't have an account?{" "}
